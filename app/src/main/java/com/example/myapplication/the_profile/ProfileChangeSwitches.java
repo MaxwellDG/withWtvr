@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.the_profile;
 
 public class ProfileChangeSwitches {
 

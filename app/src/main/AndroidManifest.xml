@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.myapplication">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -10,9 +14,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".ProfilePage"
-            android:parentActivityName=".homePage"/>
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".the_near_me.MapsActivity"
+            android:label="@string/title_activity_near_me_map"/>
+        <activity android:name=".rooms_and_voting.ActualVoting" />
+        <activity android:name=".the_near_me.NearMe" />
+        <activity android:name=".rooms_and_voting.VotingLobby" />
+        <activity
+            android:name=".the_profile.ProfilePage"
+            android:parentActivityName=".homePage" />
         <activity android:name=".homePage" />
         <activity android:name=".signUp" />
         <activity android:name=".MainActivity">
@@ -21,9 +33,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key"/>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <service android:name=".rooms_and_voting.PollingService" />
+        <service android:name=".the_near_me.LocationService" />
     </application>
-
 </manifest>

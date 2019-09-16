@@ -1,21 +1,31 @@
 package com.example.myapplication;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
-import com.example.myapplication.The_Database.Database;
+import com.example.myapplication.the_near_me.MapsActivity;
+import com.example.myapplication.the_profile.ProfilePage;
 
 public class homePage extends AppCompatActivity {
 
+    public static final String ROOMNAME = "ROOMNAME";
+    public static final String TAG = "TAG";
+
     private String username;
-    private Database database;
+    private Button createRoomButton;
+    private Button joinRoomButton;
+    private Button needIdeasButton;
+    private Context context;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +36,35 @@ public class homePage extends AppCompatActivity {
         setSupportActionBar(myToolbar);
 
         username = getIntent().getStringExtra("USERNAME");
+        context = this;
+        Log.d(TAG, "onCreate: the context for this page is: " + context.toString());
+
+        createRoomButton = findViewById(R.id.createRoomButton);
+        createRoomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(context, 1);
+                createRoomDialog.show(getSupportFragmentManager(), "Create Room");
+            }
+        });
+
+        joinRoomButton = findViewById(R.id.joinRoomButton);
+        joinRoomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: Application context is: " + getApplicationContext());
+                CreateRoomDialog createRoomDialog = new CreateRoomDialog(getApplicationContext(), 2);
+                createRoomDialog.show(getSupportFragmentManager(), "Join Room");
+            }
+        });
+
+        needIdeasButton = findViewById(R.id.needIdeasButton);
+        needIdeasButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startNearMeMapActivity();
+            }
+        });
 
     }
 
@@ -53,12 +92,9 @@ public class homePage extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    class RunnableProfileUpload implements Runnable{
-
-        @Override
-        public void run() {
-
-        }
+    public void startNearMeMapActivity(){
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
     }
 }
 

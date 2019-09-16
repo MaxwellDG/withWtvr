@@ -1,6 +1,5 @@
-package com.example.myapplication;
+package com.example.myapplication.the_profile;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -18,7 +17,10 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.example.myapplication.The_Database.Database;
+import com.example.myapplication.MainActivity;
+import com.example.myapplication.R;
+import com.example.myapplication.profile_database.Database;
+import com.example.myapplication.UserInfo;
 
 public class ProfilePage extends AppCompatActivity implements ProfileChangeDialog.ProfileChangeDialogListener {
 

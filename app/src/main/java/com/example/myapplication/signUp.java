@@ -15,7 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication.The_Database.Database;
+import com.example.myapplication.profile_database.Database;
 
 public class signUp extends AppCompatActivity {
 

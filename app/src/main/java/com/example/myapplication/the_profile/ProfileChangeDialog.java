@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.the_profile;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -15,7 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import com.example.myapplication.The_Database.Database;
+
+import com.example.myapplication.R;
+import com.example.myapplication.profile_database.Database;
 
 public class ProfileChangeDialog extends DialogFragment {
 
@@ -72,11 +74,11 @@ public class ProfileChangeDialog extends DialogFragment {
                         Log.d(TAG, "onClick: You clicked the positive button");
 
                         if (fieldChangeCode == 1) {
-                            previousPassConfirm = getDialog().findViewById(R.id.dialogChangePrevPass);
-                            newInput = getDialog().findViewById(R.id.dialogChangeNewEmail);
+                            previousPassConfirm = getDialog().findViewById(R.id.dialogRoomName);
+                            newInput = getDialog().findViewById(R.id.dialogRoomPass);
                             newInput2 = getDialog().findViewById(R.id.dialogChangeNewEmail2);
                         } else if (fieldChangeCode == 2){
-                            newInput = getDialog().findViewById(R.id.dialogChangeNewEmail);
+                            newInput = getDialog().findViewById(R.id.dialogRoomPass);
                             newInput2 = getDialog().findViewById(R.id.dialogChangeNewEmail2);
 
                             Log.d(TAG, "onClick: PreNull");
@@ -178,7 +180,7 @@ public class ProfileChangeDialog extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            Log.d(TAG, "onAttach: Listener attached.");
+            Log.d(TAG, "onAttach: Listener attached. With context: " + context.toString());
             listener = (ProfileChangeDialogListener) context;
         } catch (ClassCastException e){
             Log.d(TAG, "onAttach: Listener NOT attached.");

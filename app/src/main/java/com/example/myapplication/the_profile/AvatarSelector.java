@@ -1,4 +1,6 @@
-package com.example.myapplication;
+package com.example.myapplication.the_profile;
+
+import com.example.myapplication.R;
 
 public class AvatarSelector {
 

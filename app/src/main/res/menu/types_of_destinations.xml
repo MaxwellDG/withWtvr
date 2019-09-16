@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/destinationConcert"
+        android:title="Concert hall" />
+    <item
+        android:id="@+id/destinationRestaurant"
+        android:title="Restaurant" />
+    <item
+        android:id="@+id/destinationClub"
+        android:title="Dance club" />
+    <item
+        android:id="@+id/destinationPark"
+        android:title="Public park" />
+    <item
+        android:id="@+id/destinationMuseum"
+        android:title="Museum" />
+    <item
+        android:id="@+id/destinationBar"
+        android:title="Bar " />
+</menu>
