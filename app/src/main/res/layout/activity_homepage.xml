@@ -5,9 +5,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/homePageCon"
+    android:background="@color/colorPrimaryDark"
     tools:context=".homePage">
 
-    <androidx.appcompat.widget.Toolbar
+
+    <ImageView
+        android:id="@+id/needIdeasButton"
+        android:layout_width="168dp"
+        android:layout_height="127dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/whiteBlock"
+        app:srcCompat="@drawable/ideascirclebackground" />
+
+    <ImageView
+        android:id="@+id/whiteBlock"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@color/quantum_yellow600" />
+
+    <ImageView
+        android:id="@+id/compass"
+        android:layout_width="272dp"
+        android:layout_height="249dp"
+        android:scaleType="fitXY"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
+        app:srcCompat="@drawable/wwcompass" />
+
+    <!-- <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -23,53 +57,109 @@
         app:title="WithWtvr"
         app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
         app:titleTextColor="@color/ic_launcher_background" />
-
-
-    <Button
-        android:id="@+id/createRoomButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="32dp"
-        android:text="Create Room"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/joinRoomButton"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/joinRoomButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="32dp"
-        android:text="Join Room"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/createRoomButton" />
+        -->
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
-        android:layout_marginTop="112dp"
         android:layout_marginEnd="64dp"
-        android:text="If you can't decide where to go, pool your ideas and vote anonymously."
-        android:textAlignment="center"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar" />
+        android:text="If you can't decide where to go, pool your ideas and vote"
 
-    <Button
-        android:id="@+id/needIdeasButton"
+        android:textAlignment="center"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/circle2" />
+
+    <TextView
+        android:id="@+id/textAnon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="anonymously."
+        android:textColor="@color/quantum_white_100"
+        android:textSize="30dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <TextView
+        android:id="@+id/joinRoomButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/textborder"
+        android:text="Join Room"
+        android:textColor="@color/yellowonclick"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/createRoomButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/textborder"
+        android:text="Create Room"
+        android:textColor="@color/yellowonclick"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/circle3"
+        android:layout_width="15dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="32dp"
+        app:layout_constraintEnd_toStartOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/circle2"
+        app:layout_constraintTop_toBottomOf="@+id/circle2"
+        app:srcCompat="@drawable/ideascirclebackground" />
+
+    <ImageView
+        android:id="@+id/circle2"
+        android:layout_width="26dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/circle1"
+        app:layout_constraintTop_toBottomOf="@+id/circle1"
+        app:srcCompat="@drawable/circle2" />
+
+    <ImageView
+        android:id="@+id/circle1"
+        android:layout_width="38dp"
+        android:layout_height="36dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Need an idea?"
+        app:layout_constraintBottom_toBottomOf="@+id/compass"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar" />
+        app:srcCompat="@drawable/circle1" />
+
+    <ImageView
+        android:id="@+id/homeProfileButton"
+        android:layout_width="40dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/homeHelpButton"
+        app:layout_constraintEnd_toStartOf="@+id/homeHelpButton"
+        app:layout_constraintTop_toTopOf="@+id/homeHelpButton"
+        app:srcCompat="@drawable/ic_account_color" />
+
+    <ImageView
+        android:id="@+id/homeHelpButton"
+        android:layout_width="40dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/question_mark_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

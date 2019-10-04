@@ -14,11 +14,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.myapplication.rooms_and_voting.VotingLobby;
+import com.example.myapplication.rooms_and_voting.VotingLobbyJoiner;
 
 public class CreateRoomDialog extends DialogFragment {
 
     public static final String ROOMNAME = "ROOMNAME";
     public static final String ROOMPASS = "ROOMPASS";
+    public static final String TAG = "TAG";
+    private boolean isRoomCreator;
 
     private Context context;
     private int fieldCode;
@@ -42,9 +45,13 @@ public class CreateRoomDialog extends DialogFragment {
                             String roomName = editRoom.getText().toString();
                             EditText editPass = getDialog().findViewById(R.id.dialogRoomPass);
                             String roomPass = editRoom.getText().toString();
-                            startCreateVotingLobby(roomName, roomPass);
+                            startALobby(roomName, roomPass);
                         } else {
-                            // BUNCH OF HARD STUFF HAS TO GO HERE, AND MIGHT HAVE TO CHANGE THE ABOVE SECTION A LOT MORE THAN YOU THINK (WILL OBV HAVE TO CHANGE A BIT) AFTER YOU LEARN ABOUR SERVICES MORE //
+                            EditText editRoom = getDialog().findViewById(R.id.dialogRoomName);
+                            String roomName = editRoom.getText().toString();
+                            EditText editPass = getDialog().findViewById(R.id.dialogRoomPass);
+                            String roomPass = editRoom.getText().toString();
+                            startALobby(roomName, roomPass);
                         }
                     }
                 })
@@ -58,15 +65,23 @@ public class CreateRoomDialog extends DialogFragment {
 
         if (fieldCode == 1) {
             theDialog.setTitle("Create Room");
+            isRoomCreator = true;
         } else {
             theDialog.setTitle("Join Room");
+            isRoomCreator = false;
         }
         return theDialog.create();
     }
 
-    public void startCreateVotingLobby(String roomName, @Nullable String roomPass){
-        Intent intent = new Intent(context, VotingLobby.class);
+    private void startALobby(String roomName, @Nullable String roomPass){
+        Intent intent = null;
+        if (fieldCode == 1) {
+            intent = new Intent(context, VotingLobby.class);
+        } else {
+            intent = new Intent(context, VotingLobbyJoiner.class);
+        }
         intent.putExtra(ROOMNAME, roomName);
+        // TODO: the below line is kinda finicky. Look at this later //
         if (roomPass != null){
             intent.putExtra(ROOMPASS, roomPass);
         }

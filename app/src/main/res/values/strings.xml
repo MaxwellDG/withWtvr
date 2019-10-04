@@ -3,5 +3,5 @@
 
     <string name="kinda_working">Kinda Working?</string>
     <string name="title_activity_near_me_map">Map</string>
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyD-NmJi8jMHjOvSFeZ6EksrFfHCxmsgYoU</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBkmf2k5A4GgoZ9qc8eSyinEX5yWPTCOww</string>
 </resources>

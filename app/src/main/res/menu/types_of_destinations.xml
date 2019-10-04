@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/destinationConcert"
-        android:title="Concert hall" />
+        android:id="@+id/destinationArt"
+        android:title="Art Gallery" />
     <item
         android:id="@+id/destinationRestaurant"
         android:title="Restaurant" />

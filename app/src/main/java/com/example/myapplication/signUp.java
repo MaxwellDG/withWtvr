@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +18,7 @@ import android.widget.Toast;
 
 import com.example.myapplication.profile_database.Database;
 
-public class signUp extends AppCompatActivity {
+public class signUp extends AppCompatActivity{
 
     private EditText userText;
     private EditText passText;
@@ -52,7 +53,7 @@ public class signUp extends AppCompatActivity {
                 if (passText.getText().toString().equals(passText2.getText().toString())) {
                     UserInfo theirProfileInfo = new UserInfo(userText.getText().toString(),
                             passText.getText().toString(), emailText.getText().toString(),
-                            1, true);
+                            1, false);
 
                     Database database = Database.getWithWtvrDatabase(getApplicationContext());
 

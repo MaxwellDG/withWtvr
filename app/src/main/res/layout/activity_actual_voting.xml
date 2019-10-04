@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".rooms_and_voting.ActualVoting">
 
+    <!-- TODO: On a successful click, just increase the elevation to a fuckton to show that it's been selected -->
+
     <TextView
         android:id="@+id/actualRoomName"
         android:layout_width="wrap_content"

@@ -3,11 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.myapplication">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,31 +11,51 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".rooms_and_voting.CreateDestinations"></activity>
+        <activity android:name=".rooms_and_voting.VotingLobbyJoiner" />
+        <activity android:name=".rooms_and_voting.ActualVoting" />
+        <activity android:name=".the_profile.pickNewAvatar" />
         <activity
             android:name=".the_near_me.MapsActivity"
-            android:label="@string/title_activity_near_me_map"/>
-        <activity android:name=".rooms_and_voting.ActualVoting" />
+            android:label="@string/title_activity_near_me_map"
+            android:parentActivityName=".homePage"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
         <activity android:name=".the_near_me.NearMe" />
         <activity android:name=".rooms_and_voting.VotingLobby" />
         <activity
             android:name=".the_profile.ProfilePage"
-            android:parentActivityName=".homePage" />
+            android:parentActivityName=".homePage"
+            android:theme="@style/AppTheme" />
         <activity android:name=".homePage" />
-        <activity android:name=".signUp" />
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".signUp"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key"/>
+            android:value="AIzaSyBkmf2k5A4GgoZ9qc8eSyinEX5yWPTCOww" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
         <service android:name=".rooms_and_voting.PollingService" />
         <service android:name=".the_near_me.LocationService" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 </manifest>

@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/votingConLay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".rooms_and_voting.VotingLobby">
@@ -18,76 +19,103 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/startDestinationsButton"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:text="Options:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addOptionButton" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/colorAccent"
+        android:text="Ready"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/addOptionButton"
+        android:id="@+id/allowOthersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Add option"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addOptionText" />
-
-    <EditText
-        android:id="@+id/addOptionText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="Destination:"
-        android:inputType="textPersonName"
+        android:layout_marginTop="32dp"
+        android:text="Search for devices"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/roomName" />
 
-    <ScrollView
-        android:id="@+id/scrollViewOptions"
+    <ImageView
+        android:id="@+id/hostRefreshList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/allowOthersButton"
+        app:srcCompat="@drawable/baseline_refresh_black_18dp" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/startVoteButton"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6">
+        app:layout_constraintTop_toBottomOf="@+id/allowOthersButton">
 
-        <LinearLayout
-            android:id="@+id/linearLayoutOptions"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hostRecyclerAllDevices"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" />
-    </ScrollView>
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/startDestinationsButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hostRecylerDevicesConnected"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
     <Button
-        android:id="@+id/startVoteButton"
+        android:id="@+id/createConnectionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="Vote!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Connect"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/uniqueIDText"
+    <EditText
+        android:id="@+id/workingTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="unique ID #"
-        app:layout_constraintBottom_toBottomOf="@+id/roomName"
-        app:layout_constraintStart_toEndOf="@+id/roomName" />
+        android:layout_marginStart="16dp"
+        android:text="TEXTVIEW"
+        app:layout_constraintBottom_toBottomOf="@+id/allowOthersButton"
+        app:layout_constraintStart_toEndOf="@+id/allowOthersButton"
+        app:layout_constraintTop_toTopOf="@+id/allowOthersButton" />
+
+    <Button
+        android:id="@+id/practiceSend"
+        android:layout_width="61dp"
+        android:layout_height="40dp"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="@+id/workingTextView"
+        app:layout_constraintEnd_toStartOf="@+id/hostRefreshList"
+        app:layout_constraintStart_toEndOf="@+id/workingTextView"
+        app:layout_constraintTop_toTopOf="@+id/workingTextView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

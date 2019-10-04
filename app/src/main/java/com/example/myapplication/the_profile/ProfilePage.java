@@ -1,10 +1,12 @@
 package com.example.myapplication.the_profile;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -24,13 +25,15 @@ import com.example.myapplication.UserInfo;
 
 public class ProfilePage extends AppCompatActivity implements ProfileChangeDialog.ProfileChangeDialogListener {
 
+    public static final int NEW_AVATAR_REQUEST = 1001;
+    public static final int LOCATION_PERMISSIONS_REQUEST_CODE = 9001;
+
     private static final String TAG = "TAG";
     private String username;
     private String password;
     private String email;
     private Database database;
     private Context context;
-
 
     private TextView profileTheirDisplayName;
     private TextView profileTheirPassword;
@@ -50,10 +53,6 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
         setContentView(R.layout.activity_profile_page);
 
         this.context = getApplicationContext();
-
-        Toolbar myToolbar = findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-
         this.profileTheirDisplayName = findViewById(R.id.profileTheirDisplayName);
         this.profileTheirPassword = findViewById(R.id.profileTheirPassword);
         this.profileTheirEmail = findViewById(R.id.profileTheirEmail);
@@ -84,7 +83,8 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
                             profileAccountName.setText(userInfo.getUsername());
                             profileTheirPassword.setText(userInfo.getPassword());
                             password = userInfo.getPassword();
-                            profileGPS.setChecked(userInfo.isGPS());
+                            //TODO: the below part is getting triggered on the start of the activity. Find someway to make a custom. SUPER CUSTOM onCheckChangedListener that will take requestCodes that will identify if the permissions thing needs to be triggered or not //
+                            // profileGPS.setChecked(userInfo.isGPS());
 
                             AvatarSelector avatarSelector = new AvatarSelector(userInfo.getAvatarId());
                             profileAvatar.setImageResource(avatarSelector.getAvatarPhoto());
@@ -101,24 +101,26 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
             public void onClick(View v) {
                 ProfileChangeDialog profileChangeDialog =
                         new ProfileChangeDialog(password, username, getApplicationContext(), 1);
-                profileChangeDialog.show(getSupportFragmentManager(), "passChange");
+                profileChangeDialog.show((getSupportFragmentManager()), "passChange");
             }
         });
 
         profileChangeEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO: Long emails in the layout for this look fucked //
                 ProfileChangeDialog profileChangeDialog =
                         new ProfileChangeDialog(email, username, getApplicationContext(), 2);
                 profileChangeDialog.show(getSupportFragmentManager(), "emailChange");
             }
         });
 
-        profileGPS.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        profileAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // research this section a little bit before you jump on it //
-                // alternatively, just use the normal onClickListener //
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfilePage.this, pickNewAvatar.class);
+                startActivityForResult(intent, NEW_AVATAR_REQUEST);
+                // TODO: Maybe this should be a fragment? ungh I don't want to do that. Maybe an activity is fine wtvr, just learn how to do that with forResult //
             }
         });
 
@@ -144,6 +146,54 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        // this will receive the data for which picture they want as their avatar //
+        // something something remember that you've got AvatarSelector class setup. WAit. MAaybe.
+        // Not. Hmmm... maybe that'll be. Okay yea. That'll just be something you need to do at the
+        // VERY END of this function by adding some database input with the proper number. It's already set up to
+        // reload the correct image for next time. //
+
+
+        // this below part will update the database for future returns to this page.
+        // Just remember that "SELECTED_AVATAR" needs to be put in the Intent data that will link back to this //
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                database.getDAO_UserInfo().updateAvatar(data.getIntExtra("SELECTED_AVATAR",
+                        1), profileAccountName.getText().toString());
+            }
+        };
+        new Thread(runnable).start();
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void updateDatabaseGPS(boolean isTrue){
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                database.getDAO_UserInfo().updateGPS(isTrue, username);
+            }
+        };
+        new Thread(runnable).start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case LOCATION_PERMISSIONS_REQUEST_CODE:
+                if (grantResults.length > 0){
+                    for(int i : grantResults){
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                            updateDatabaseGPS(false);
+                            break;
+                        }
+                        updateDatabaseGPS(true);
+                    }
+                }
+        }
+    }
+
+    @Override
     public void applyTextChange(String changedText, int resourceFieldCode) {
         switch (resourceFieldCode){
             case 1:
@@ -157,5 +207,7 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
                 // changing display name //
         }
     }
+
+
 }
 

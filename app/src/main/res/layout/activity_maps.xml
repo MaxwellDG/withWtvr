@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mapConLayout"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
@@ -15,55 +16,31 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="16dp" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mapInputConLayout"
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        android:id="@+id/searchBar"
+        style="@style/MaterialSearchBarLight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/rectangle_white_input"
+        android:elevation="5dp"
+        app:mt_navIconEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Button
-            android:id="@+id/inflaterDestinationButton"
-            android:layout_width="55dp"
-            android:layout_height="0dp"
-            android:background="@android:drawable/ic_search_category_default"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <EditText
-            android:id="@+id/destinationInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:hint="Input a location"
-            android:textSize="18sp"
-            android:inputType="text"
-            android:imeOptions="actionSearch"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/inflaterDestinationButton"
-            app:layout_constraintTop_toTopOf="parent">
-
-        </EditText>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        app:mt_hint="Custom hint"
+        app:mt_maxSuggestionsCount="10" />
 
     <ImageView
         android:id="@+id/returnToMyLocationButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="16dp"
-        android:src="@android:drawable/ic_menu_mylocation"
-        app:layout_constraintEnd_toEndOf="@+id/mapInputConLayout"
-        app:layout_constraintTop_toBottomOf="@+id/mapInputConLayout" />
+        android:src="@drawable/locateicon"
+        android:elevation="5dp"
+        app:layout_constraintEnd_toEndOf="@+id/searchBar"
+        app:layout_constraintTop_toBottomOf="@+id/searchBar" />
 
     <ImageView
         android:id="@+id/giveMeIdeasButton"
