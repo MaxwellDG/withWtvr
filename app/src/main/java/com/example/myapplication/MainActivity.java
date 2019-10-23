@@ -1,7 +1,9 @@
 package com.example.myapplication;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
@@ -21,11 +23,13 @@ import com.example.myapplication.profile_database.Database;
 public class MainActivity extends AppCompatActivity {
 
     public static final String USERNAME = "USERNAME";
+    public static final int REQUEST_CODE_SIGNUP = 1001;
 
-    private EditText userText;
-    private EditText passText;
+    private EditText usernameInput;
+    private EditText passwordInput;
     private String userEntered;
     private String passEntered;
+    private Context context = this;
 
     private UserInfo loginAccount;
     private Handler mainHandler = new Handler();
@@ -34,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        userText = findViewById(R.id.usernameInput);
-        passText = findViewById(R.id.passwordInput);
+        usernameInput = findViewById(R.id.usernameInput);
+        passwordInput = findViewById(R.id.passwordInput);
 
         TextView withWtvr = findViewById(R.id.withWtvrText);
         TextView loginButton = findViewById(R.id.loginButton);
@@ -56,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: this could be done nicer with an ActivityOnResult function //
-                startSignUp();
+                Intent intent = new Intent(context, signUp.class);
+                startActivityForResult(intent, REQUEST_CODE_SIGNUP);
             }
         });
 
@@ -65,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userEntered = userText.getText().toString();
-                passEntered = passText.getText().toString();
+                userEntered = usernameInput.getText().toString();
+                passEntered = passwordInput.getText().toString();
 
                 final Database database = Database.getWithWtvrDatabase(getApplicationContext());
                 RunnableCheck runnableCheck = new RunnableCheck(userEntered, passEntered, database);
@@ -81,9 +85,19 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void startSignUp() {
-        Intent intent = new Intent(this, signUp.class);
-        startActivity(intent);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_SIGNUP) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    usernameInput.setText(data.getStringExtra("USERNAME_INPUT"));
+                    passwordInput.setText(data.getStringExtra("PASSWORD_INPUT"));
+                }
+            } else if (resultCode == RESULT_CANCELED){
+                Toast.makeText(context, "Signup cancelled.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     class RunnableCheck implements Runnable {
@@ -109,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        userText.setText("");
-                        passText.setText("");
+                        usernameInput.setText("");
+                        passwordInput.setText("");
                         Toast.makeText(MainActivity.this, "Login entry incorrect.",
                                 Toast.LENGTH_SHORT).show();
                     }

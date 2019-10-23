@@ -20,6 +20,8 @@ import com.example.myapplication.profile_database.Database;
 
 public class signUp extends AppCompatActivity{
 
+    public static final int REQUEST_CODE_SIGNUP = 1001;
+
     private EditText userText;
     private EditText passText;
     private EditText emailText;
@@ -74,7 +76,10 @@ public class signUp extends AppCompatActivity{
 
     public void startMain(){
         Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        intent.putExtra("USERNAME_INPUT", userText.getText().toString());
+        intent.putExtra("PASSWORD_INPUT", passText.getText().toString());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     class RunnableInput implements java.lang.Runnable{

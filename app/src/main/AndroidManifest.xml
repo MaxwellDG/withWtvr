@@ -11,16 +11,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".rooms_and_voting.CreateDestinations"></activity>
+        <activity android:name=".rooms_and_voting.CreateDestinations"
+            android:theme="@style/AppTheme"/>
         <activity android:name=".rooms_and_voting.VotingLobbyJoiner" />
-        <activity android:name=".rooms_and_voting.ActualVoting" />
-        <activity android:name=".the_profile.pickNewAvatar" />
+        <activity android:name=".rooms_and_voting.ActualVoting"
+            android:theme="@style/AppTheme"/>
+        <activity android:name=".the_profile.PickNewAvatar" />
         <activity
             android:name=".the_near_me.MapsActivity"
             android:label="@string/title_activity_near_me_map"
             android:parentActivityName=".homePage"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-        <activity android:name=".the_near_me.NearMe" />
         <activity android:name=".rooms_and_voting.VotingLobby" />
         <activity
             android:name=".the_profile.ProfilePage"
@@ -40,6 +41,8 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".rooms_and_voting.BluetoothDataTransferService"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBkmf2k5A4GgoZ9qc8eSyinEX5yWPTCOww" />
@@ -47,8 +50,6 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <service android:name=".rooms_and_voting.PollingService" />
-        <service android:name=".the_near_me.LocationService" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

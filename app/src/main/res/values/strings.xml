@@ -4,4 +4,8 @@
     <string name="kinda_working">Kinda Working?</string>
     <string name="title_activity_near_me_map">Map</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBkmf2k5A4GgoZ9qc8eSyinEX5yWPTCOww</string>
+    <string name="paired_with">Paired with: </string>
+    <string name="searching_for">Searching… </string>
+
+    <string name="profile_number_votes">Tap up to %1$s options.</string>
 </resources>

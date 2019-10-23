@@ -3,9 +3,11 @@ package com.example.myapplication.rooms_and_voting;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,7 +23,8 @@ public class DeviceListAdapter extends RecyclerView.Adapter{
     private Context context;
     private ArrayList<BluetoothDevice> deviceArrayList;
     private final onDeviceClickedListener listener;
-    private final int[] row_index = {-1};
+    private static final String TAG = "TAG";
+    private int row_index = -1;
 
     DeviceListAdapter(Context context, ArrayList<BluetoothDevice> deviceArrayList, onDeviceClickedListener listener) {
         this.listener = listener;
@@ -38,24 +41,38 @@ public class DeviceListAdapter extends RecyclerView.Adapter{
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((DeviceViewHolder) holder).bindView(position, deviceArrayList, listener);
-    /*    holder.row_linearlayout.setOnClickListener(new View.OnClickListener() {
+        if (deviceArrayList.get(position).getName() == null) {
+            ((DeviceViewHolder) holder).deviceName.setText("Unknown");
+        } else {
+            ((DeviceViewHolder) holder).deviceName.setText(deviceArrayList.get(position).getName());
+        }
+        ((DeviceViewHolder) holder).deviceAddress.setText(deviceArrayList.get(position).getAddress());
+
+      ((DeviceViewHolder) holder).constraintLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                row_index[0] = position;
+                ((DeviceViewHolder) holder).attemptPairingButton.setVisibility(View.VISIBLE);
+                row_index = position;
                 notifyDataSetChanged();
             }
         });
-        if(row_index[0] ==position){
-            holder.constraintLayout.setBackgroundColor(Color.parseColor("#567845"));
-            holder.tv1.setTextColor(Color.parseColor("#ffffff"));
+        if(row_index == position){
+            ((DeviceViewHolder) holder).attemptPairingButton.setVisibility(View.VISIBLE);
+            ((DeviceViewHolder) holder).attemptPairingButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO: set a listener on the bluetooth pairing thingi and while it's on the "attempting to connect" part have a swirly happening and make the button GONE //
+                    listener.touchedDevice(position);
+                }
+            });
+            ((DeviceViewHolder) holder).constraintLayout.setBackgroundColor(Color.parseColor("#FFCCB826"));
+            ((DeviceViewHolder) holder).deviceName.setTextColor(Color.parseColor("#ffffff"));
         }
-        else
-        {
-            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));
-            holder.tv1.setTextColor(Color.parseColor("#000000"));
-        } */
-
+        else {
+            ((DeviceViewHolder) holder).attemptPairingButton.setVisibility(View.GONE);
+            ((DeviceViewHolder) holder).constraintLayout.setBackgroundColor(Color.parseColor("#ffffff"));
+            ((DeviceViewHolder) holder).deviceName.setTextColor(Color.parseColor("#000000"));
+        }
     }
 
     @Override
@@ -66,31 +83,16 @@ public class DeviceListAdapter extends RecyclerView.Adapter{
 
     class DeviceViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView deviceName;
-        public TextView deviceAddress;
-        public ConstraintLayout constraintLayout;
+        TextView deviceName;
+        TextView deviceAddress;
+        ConstraintLayout constraintLayout;
+        Button attemptPairingButton;
 
         DeviceViewHolder(@NonNull View itemView) {
             super(itemView);
             deviceName = itemView.findViewById(R.id.aDeviceName);
             deviceAddress = itemView.findViewById(R.id.aDeviceAddress);
             constraintLayout = itemView.findViewById(R.id.aDeviceConLay);
-        }
-
-        void bindView(int position, ArrayList<BluetoothDevice> deviceArrayList, onDeviceClickedListener listener) {
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-
-                    listener.touchedDevice(position);
-                }
-            });
-            if (deviceArrayList.get(position).getName() == null) {
-                deviceName.setText("Unknown");
-            } else {
-                deviceName.setText(deviceArrayList.get(position).getName());
-            }
-            deviceAddress.setText(deviceArrayList.get(position).getAddress());
+            attemptPairingButton = itemView.findViewById(R.id.aDevicePairButton);
         }
     }

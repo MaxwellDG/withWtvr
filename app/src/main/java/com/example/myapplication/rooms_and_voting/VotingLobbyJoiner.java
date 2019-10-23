@@ -3,6 +3,7 @@ package com.example.myapplication.rooms_and_voting;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -19,10 +20,10 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,8 +32,8 @@ import com.example.myapplication.R;
 import com.example.myapplication.homePage;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 
 public class VotingLobbyJoiner extends AppCompatActivity {
@@ -40,21 +41,26 @@ public class VotingLobbyJoiner extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1001;
     private static final int REQUEST_ENABLE_BT_DISCOVERY = 1002;
     private static final int REQUEST_ENABLE_DT_CONNECT = 1003;
-    private static final int DISCOVERY_DURATION = 100;
-    private static final UUID UUID = java.util.UUID.fromString("238c71d5-924d-4f72-af44-89b9e2cc9582");
+    private static final int DISCOVERY_DURATION = 300;
+
     private static final String TAG = "TAG";
 
     private Context context;
     private BluetoothAdapter bluetoothAdapter;
     private ConstraintLayout constraintLayout;
+    private TextView statusText;
+    private TextView statusTextTop;
 
     private BluetoothDataTransferService bluetoothDataTransferService;
     private BluetoothDevice workingDevice;
     private DeviceListAdapter deviceListAdapter;
     private ArrayList<BluetoothDevice> deviceList = new ArrayList<>();
+    // for joiner activity deviceDisplayList is just a single device. //
+    private ArrayList<BluetoothDevice> deviceDisplayList = new ArrayList<>();
     private onDeviceClickedListener listener;
     private ImageView joinerStatusImage;
-    private boolean blueoothPermission;
+    private Set<BluetoothDevice> pairedDevices;
+
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -90,6 +96,7 @@ public class VotingLobbyJoiner extends AppCompatActivity {
                 switch (scanMode) {
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
                         joinerStatusImage.setImageResource(R.drawable.baseline_phonelink_erase_black_48dp_yellow);
+                        statusText.setText(getString(R.string.searching_for));
                         Log.d(TAG, "onReceive: Puede descubrir y conectar.");
                         break;
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
@@ -113,7 +120,6 @@ public class VotingLobbyJoiner extends AppCompatActivity {
                 if (!deviceList.contains(device)) {
                     deviceList.add(device);
                 }
-                Log.d(TAG, "onReceive: " + deviceName + " , " + deviceHardwareAddress);
             }
         }
     };
@@ -126,43 +132,61 @@ public class VotingLobbyJoiner extends AppCompatActivity {
                 final int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
                 switch (bondState) {
                     case BluetoothDevice.BOND_BONDED:
+                        Snackbar.make(constraintLayout, "Successfully paired with " + someDevice.getName(), Snackbar.LENGTH_LONG).show();
                         Log.d(TAG, "onReceive: Aparatos han hecho amigos!");
                         workingDevice = someDevice;
                         bluetoothAdapter.startDiscovery();
                         joinerStatusImage.setImageResource(R.drawable.baseline_phonelink_erase_black_48dp_green);
+                        statusTextTop.setText(getString(R.string.paired_with));
+                        statusText.setText(someDevice.getName());
                         break;
                     case BluetoothDevice.BOND_BONDING:
                         Log.d(TAG, "onReceive: Aparatos estan haciendo amigos...");
                         break;
                     case BluetoothDevice.BOND_NONE:
+                        Snackbar.make(constraintLayout, "Something went wrong...", Snackbar.LENGTH_LONG).show();
                         Log.d(TAG, "onReceive: una cosa no esta trabajando correctamente");
+                        bluetoothAdapter.startDiscovery();
                         break;
                 }
             }
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voting_lobby_joiner);
 
-        String roomName = getIntent().getStringExtra("ROOMNAME");
+        /*String roomName = getIntent().getStringExtra("ROOMNAME");
         TextView theRoomName = findViewById(R.id.joinerRoomName);
         theRoomName.setText(roomName);
+        */
 
         constraintLayout = findViewById(R.id.joinerConLay);
         context = this;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        pairedDevices = bluetoothAdapter.getBondedDevices();
         joinerStatusImage = findViewById(R.id.joinerHostConnectedImage);
+        statusText = findViewById(R.id.joinerStatusText);
+        statusTextTop = findViewById(R.id.joinerStatusTextTop);
         listener = new onDeviceClickedListener() {
             @Override
             public void touchedDevice(int position) {
-                bluetoothDataTransferService = new BluetoothDataTransferService(context);
-                Snackbar.make(constraintLayout, "Connecting to " + deviceList.get(position).getName() + "...", Snackbar.LENGTH_LONG);
+                if (!pairedDevices.contains(deviceList.get(position))){
+                    Snackbar.make(constraintLayout, "Connecting to " + deviceList.get(position).getName() + "...", Snackbar.LENGTH_INDEFINITE).show();
+                    bluetoothAdapter.cancelDiscovery();
+                    deviceList.get(position).createBond();
+                } else {
+                    Snackbar.make(constraintLayout, "Successfully paired with " + deviceList.get(position).getName(), Snackbar.LENGTH_LONG).show();
+                    joinerStatusImage.setImageResource(R.drawable.baseline_phonelink_erase_black_48dp_green);
+                    statusTextTop.setText(getString(R.string.paired_with));
+                    statusText.setText(deviceList.get(position).getName());
+                    deviceDisplayList.add(deviceList.get(position));
+                }
                 workingDevice = deviceList.get(position);
-                bluetoothAdapter.cancelDiscovery();
-                deviceList.get(position).createBond();
+
             }
         };
 
@@ -176,22 +200,31 @@ public class VotingLobbyJoiner extends AppCompatActivity {
         ImageView refreshButton = findViewById(R.id.joinerRefreshButton);
         RecyclerView allTheDevices = findViewById(R.id.joinerRecycler);
 
-        Button allowOthers = findViewById(R.id.joinerEnableBluetoothButton);
+        ImageView allowOthers = findViewById(R.id.joinerEnableBluetoothButton);
+        CardView cardViewProgress = findViewById(R.id.joinerProgressCard);
+        allTheDevices.setAdapter(deviceListAdapter);
+        allTheDevices.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         allowOthers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkPermissionBluetoothDiscover();
                 startGettingDiscovered();
                 findOtherDevices();
-                allTheDevices.setAdapter(deviceListAdapter);
-                allTheDevices.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+                cardViewProgress.setVisibility(View.VISIBLE);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        cardViewProgress.setVisibility(View.INVISIBLE);
+                        deviceListAdapter.notifyDataSetChanged();
+                    }
+                },5000);
             }
         });
 
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                allTheDevices.setAdapter(deviceListAdapter);
                 deviceListAdapter.notifyDataSetChanged();
             }
         });
@@ -200,44 +233,26 @@ public class VotingLobbyJoiner extends AppCompatActivity {
         joinerDestinationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startAnActivity(CreateDestinations.class);
+                Intent intent = new Intent(context, CreateDestinations.class);
+                // intent.putExtra("ROOMNAME", roomName);
+                intent.putExtra("IS_HOST", false);
+                intent.putParcelableArrayListExtra("CONNECTED_DEVICES", deviceDisplayList);
+                startActivity(intent);
             }
         });
-
-        Button createConnectionButton = findViewById(R.id.joinerCreateConnection);
-        createConnectionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startBTConnection(workingDevice, UUID);
-            }
-        });
-
-        EditText practiceTransfer = findViewById(R.id.joinerTextView);
-        Button practiceSend = findViewById(R.id.joinerSend);
-        practiceSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                byte[] bytes = practiceTransfer.getText().toString().getBytes(Charset.defaultCharset());
-                bluetoothDataTransferService.write(bytes);
-            }
-        });
-    }
-
-    public void startBTConnection(BluetoothDevice device, UUID uuid){
-        Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
-        // TODO: when youre having more than 1 connection here, will need to change the below to startServiceAsServer and move this to the VotingLobbyJoiner. And remember the name of the below function is wrong //
-        bluetoothDataTransferService.startServiceAsClient(device,uuid);
     }
 
     public void setUpBluetooth(){
         if (bluetoothAdapter == null){
-            Snackbar.make(constraintLayout, "Compra un fono nuevo abuelo. Lo necesita bluetooth.", Snackbar.LENGTH_LONG).show();
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            startAnActivity(homePage.class);
+            Snackbar.make(constraintLayout, "Buy a new phone grandpa. It needs bluetooth.", Snackbar.LENGTH_LONG).show();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(context, homePage.class);
+                    startActivity(intent);
+                }
+            }, 3000);
         } else {
             if (bluetoothAdapter.isEnabled()){
                 IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -249,15 +264,8 @@ public class VotingLobbyJoiner extends AppCompatActivity {
         }
     }
 
-    private void startAnActivity(Class aClass) {
-        Intent intent = new Intent(VotingLobbyJoiner.this, aClass);
-        startActivity(intent);
-    }
-
     private void startGettingDiscovered() {
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        //TODO: change ths duration below when app goes to production //
-        // Also... pretty sure i found a bug? The duration time becomes the resultCode for onActivityResult. Super weird //
         intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERY_DURATION);
         startActivityForResult(intent, REQUEST_ENABLE_BT_DISCOVERY);
 
@@ -323,15 +331,26 @@ public class VotingLobbyJoiner extends AppCompatActivity {
                 if (grantResults.length > 0) {
                     for (int i : grantResults) {
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            blueoothPermission = false;
                             Toast.makeText(context, "Cannot proceed without bluetooth/location permissions.", Toast.LENGTH_SHORT).show();
                             break;
                         } else {
-                            blueoothPermission = true;
                             Toast.makeText(context, "Bluetooth/location permission granted.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        BroadcastReceiver[] allTheReceivers = {bluetoothReceiver, bluetoothDiscoverReceiver, bluetoothFindOthersReceiver, bluetoothBondingReceiver};
+        for (BroadcastReceiver receiver : allTheReceivers){
+            try{
+                unregisterReceiver(receiver);
+            } catch (IllegalArgumentException e){
+                e.printStackTrace();
+            }
+        }
+        super.onDestroy();
     }
 }

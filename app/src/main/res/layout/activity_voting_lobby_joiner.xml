@@ -5,23 +5,15 @@
     android:id="@+id/joinerConLay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/wineglass_back"
     tools:context=".rooms_and_voting.VotingLobbyJoiner">
 
     <Button
-        android:id="@+id/joinerEnableBluetoothButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Search for devices"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
         android:id="@+id/joinerDestinationsButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:background="@color/colorAccent"
         android:text="Ready"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,24 +21,15 @@
 
     <ImageView
         android:id="@+id/joinerHostConnectedImage"
-        android:layout_width="232dp"
-        android:layout_height="293dp"
+        android:layout_width="0dp"
+        android:layout_height="97dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
+        android:background="#B5F1F0F0"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/joinerRoomName"
+        app:layout_constraintTop_toBottomOf="@+id/cardview9"
         app:srcCompat="@drawable/baseline_phonelink_erase_black_48dp" />
-
-    <ImageView
-        android:id="@+id/joinerRefreshButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView6"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView6"
-        app:srcCompat="@drawable/baseline_refresh_black_18dp" />
 
     <LinearLayout
         android:id="@+id/joinerLinear"
@@ -55,13 +38,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/joinerDestinationsButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6">
+        app:layout_constraintTop_toBottomOf="@+id/joinerHostConnectedImage">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/joinerRecycler"
@@ -70,49 +52,111 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/joinerStatusTextTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Select a host device to connect with:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/joinerHostConnectedImage" />
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="16dp"
+        android:text="Status:"
+        app:layout_constraintBottom_toBottomOf="@+id/joinerHostConnectedImage"
+        app:layout_constraintStart_toStartOf="@+id/joinerHostConnectedImage"
+        app:layout_constraintTop_toBottomOf="@+id/cardview9" />
 
     <TextView
-        android:id="@+id/joinerRoomName"
+        android:id="@+id/joinerStatusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Room Name"
-        android:textSize="36sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="Not searching"
+        app:layout_constraintEnd_toEndOf="@+id/joinerStatusTextTop"
+        app:layout_constraintStart_toStartOf="@+id/joinerStatusTextTop"
+        app:layout_constraintTop_toBottomOf="@+id/joinerStatusTextTop" />
 
-    <Button
-        android:id="@+id/joinerCreateConnection"
-        android:layout_width="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView4"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Butt"
+        android:layout_marginTop="8dp"
+        android:padding="0dp"
+        app:cardBackgroundColor="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/joinerEnableBluetoothButton" />
-
-    <EditText
-        android:id="@+id/joinerTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TEXTVIEW"
-        app:layout_constraintBottom_toBottomOf="@+id/joinerHostConnectedImage"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/joinerHostConnectedImage" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/joinerSend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send"
-        app:layout_constraintEnd_toEndOf="@+id/joinerTextView"
-        app:layout_constraintStart_toStartOf="@+id/joinerTextView"
-        app:layout_constraintTop_toBottomOf="@+id/joinerTextView" />
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_gravity="center|right"
+            app:srcCompat="@drawable/baseline_menu_black_36dp" />
+
+        <TextView
+            android:id="@+id/joinerRoomName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="WithWtvr"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/joinerProgressCard"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:translationZ="0dp"
+        android:visibility="invisible"
+        app:cardBackgroundColor="#00FFFFFF"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/joinerLinear"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/joinerLinear">
+
+        <ProgressBar
+            android:id="@+id/joinerProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            tools:visibility="visible" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardview9"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView4">
+
+        <ImageView
+            android:id="@+id/joinerEnableBluetoothButton"
+            android:layout_width="161dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            app:srcCompat="@drawable/allow_search_buttons" />
+
+        <ImageView
+            android:id="@+id/joinerRefreshButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="0dp"
+            app:srcCompat="@drawable/allow_refresh_buttons" />
+
+        <ImageView
+            android:id="@+id/imageView9"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|right"
+            app:srcCompat="@drawable/always_host_buttons" />
+
+    </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

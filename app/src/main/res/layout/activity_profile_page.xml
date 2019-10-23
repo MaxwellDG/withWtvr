@@ -78,7 +78,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="1.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/profileConLay"
@@ -91,15 +91,14 @@
 
             <ImageView
                 android:id="@+id/imageView18"
-                android:layout_width="19dp"
-                android:layout_height="21dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:textColor="@color/quantum_white_100"
                 android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="@+id/profileTheirDisplayName"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/profileTheirDisplayName"
-                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintTop_toTopOf="@+id/textView5"
                 app:srcCompat="@android:drawable/ic_menu_edit" />
 
             <ImageView
@@ -110,8 +109,7 @@
                 android:textColor="@color/quantum_white_100"
                 app:layout_constraintBottom_toBottomOf="@+id/profileTheirPassword"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/profileTheirPassword"
-                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintTop_toTopOf="@+id/textView10"
                 app:srcCompat="@android:drawable/ic_menu_edit" />
 
             <ImageView
@@ -122,8 +120,7 @@
                 android:textColor="@color/quantum_white_100"
                 app:layout_constraintBottom_toBottomOf="@+id/profileTheirEmail"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/profileTheirEmail"
-                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintTop_toTopOf="@+id/textView12"
                 app:srcCompat="@android:drawable/ic_menu_edit" />
 
             <ImageView
@@ -145,6 +142,16 @@
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@+id/yourOptionsHere"
                 app:layout_constraintTop_toTopOf="@+id/yourVotesNoHere"
+                app:srcCompat="@android:drawable/ic_menu_edit" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/yourLengthHere"
+                app:layout_constraintEnd_toEndOf="@+id/imageView3"
+                app:layout_constraintStart_toStartOf="@+id/imageView3"
+                app:layout_constraintTop_toTopOf="@+id/yourLengthHere"
                 app:srcCompat="@android:drawable/ic_menu_edit" />
 
             <Switch
@@ -204,15 +211,13 @@
 
             <TextView
                 android:id="@+id/profileTheirDisplayName"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
                 android:text="yourNameHere"
                 android:textColor="@color/quantum_white_100"
-                app:layout_constraintBottom_toBottomOf="@+id/textView5"
-                app:layout_constraintStart_toEndOf="@+id/textView5"
-                app:layout_constraintTop_toTopOf="@+id/textView5"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintEnd_toStartOf="@+id/imageView18"
+                app:layout_constraintStart_toStartOf="@+id/textView5"
+                app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
             <TextView
                 android:id="@+id/textView10"
@@ -227,15 +232,14 @@
 
             <TextView
                 android:id="@+id/profileTheirPassword"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
                 android:password="true"
                 android:text="yourPasswordHere"
                 android:textColor="@color/quantum_white_100"
-                app:layout_constraintBottom_toBottomOf="@+id/textView10"
-                app:layout_constraintStart_toEndOf="@+id/textView10"
-                app:layout_constraintTop_toTopOf="@+id/textView10" />
+                app:layout_constraintEnd_toStartOf="@+id/profileChangePassword"
+                app:layout_constraintStart_toStartOf="@+id/textView10"
+                app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
             <TextView
                 android:id="@+id/textView12"
@@ -250,15 +254,15 @@
 
             <TextView
                 android:id="@+id/profileTheirEmail"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:inputType="textMultiLine"
                 android:text="yourEmailHere"
                 android:textColor="@color/quantum_white_100"
-                app:layout_constraintBottom_toBottomOf="@+id/textView12"
-                app:layout_constraintStart_toEndOf="@+id/textView12"
-                app:layout_constraintTop_toTopOf="@+id/textView12" />
+                app:layout_constraintEnd_toStartOf="@+id/profileChangeEmail"
+                app:layout_constraintStart_toStartOf="@+id/textView12"
+                app:layout_constraintTop_toBottomOf="@+id/textView12" />
 
             <TextView
                 android:id="@+id/textView14"
@@ -379,16 +383,6 @@
                 app:layout_constraintBottom_toBottomOf="@+id/textView16"
                 app:layout_constraintStart_toEndOf="@+id/textView16"
                 app:layout_constraintTop_toTopOf="@+id/textView16" />
-
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@+id/yourLengthHere"
-                app:layout_constraintEnd_toEndOf="@+id/imageView3"
-                app:layout_constraintStart_toStartOf="@+id/imageView3"
-                app:layout_constraintTop_toTopOf="@+id/yourLengthHere"
-                app:srcCompat="@android:drawable/ic_menu_edit" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

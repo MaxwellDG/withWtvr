@@ -56,7 +56,7 @@ public class UserInfo {
         this.avatarId = avatarId;
     }
 
-    public boolean isGPS() {
+    public boolean getGPS() {
         return GPS;
     }
 

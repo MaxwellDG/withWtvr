@@ -56,7 +56,11 @@ public class DeviceDisplayAdapter extends RecyclerView.Adapter {
             deviceImageForRemoval = itemView.findViewById(R.id.deviceDisplayImage);
         }
 
-        void onBind(int position, ArrayList<BluetoothDevice> connectedDevicesArrayList){
-            deviceName.setText(connectedDevicesArrayList.get(position).getName());
+        void onBind(int position, ArrayList<BluetoothDevice> connectedDevicesArrayList) {
+            if (connectedDevicesArrayList.get(position).getName() != null) {
+                deviceName.setText(connectedDevicesArrayList.get(position).getName());
+            } else {
+                deviceName.setText("Unknown");
+            }
         }
     }

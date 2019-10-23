@@ -21,7 +21,6 @@ public class CreateRoomDialog extends DialogFragment {
     public static final String ROOMNAME = "ROOMNAME";
     public static final String ROOMPASS = "ROOMPASS";
     public static final String TAG = "TAG";
-    private boolean isRoomCreator;
 
     private Context context;
     private int fieldCode;
@@ -40,19 +39,14 @@ public class CreateRoomDialog extends DialogFragment {
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (fieldCode == 1) {
                             EditText editRoom = getDialog().findViewById(R.id.dialogRoomName);
                             String roomName = editRoom.getText().toString();
+                            if (roomName.isEmpty()){
+                                roomName = "WithWtvr";
+                            }
                             EditText editPass = getDialog().findViewById(R.id.dialogRoomPass);
                             String roomPass = editRoom.getText().toString();
                             startALobby(roomName, roomPass);
-                        } else {
-                            EditText editRoom = getDialog().findViewById(R.id.dialogRoomName);
-                            String roomName = editRoom.getText().toString();
-                            EditText editPass = getDialog().findViewById(R.id.dialogRoomPass);
-                            String roomPass = editRoom.getText().toString();
-                            startALobby(roomName, roomPass);
-                        }
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -65,10 +59,8 @@ public class CreateRoomDialog extends DialogFragment {
 
         if (fieldCode == 1) {
             theDialog.setTitle("Create Room");
-            isRoomCreator = true;
         } else {
             theDialog.setTitle("Join Room");
-            isRoomCreator = false;
         }
         return theDialog.create();
     }
@@ -81,7 +73,6 @@ public class CreateRoomDialog extends DialogFragment {
             intent = new Intent(context, VotingLobbyJoiner.class);
         }
         intent.putExtra(ROOMNAME, roomName);
-        // TODO: the below line is kinda finicky. Look at this later //
         if (roomPass != null){
             intent.putExtra(ROOMPASS, roomPass);
         }

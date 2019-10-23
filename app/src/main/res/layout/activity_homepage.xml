@@ -11,16 +11,6 @@
 
 
     <ImageView
-        android:id="@+id/needIdeasButton"
-        android:layout_width="168dp"
-        android:layout_height="127dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/whiteBlock"
-        app:srcCompat="@drawable/ideascirclebackground" />
-
-    <ImageView
         android:id="@+id/whiteBlock"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -33,13 +23,13 @@
         app:srcCompat="@color/quantum_yellow600" />
 
     <ImageView
-        android:id="@+id/compass"
+        android:id="@+id/compassButton"
         android:layout_width="272dp"
         android:layout_height="249dp"
         android:scaleType="fitXY"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
-        app:srcCompat="@drawable/wwcompass" />
+        app:srcCompat="@drawable/compass_buttons" />
 
     <!-- <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -106,7 +96,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginBottom="32dp"
         android:background="@drawable/textborder"
-        android:text="Create Room"
+        android:text="Host Room"
         android:textColor="@color/yellowonclick"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -137,7 +127,7 @@
         android:layout_width="38dp"
         android:layout_height="36dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/compass"
+        app:layout_constraintBottom_toBottomOf="@+id/compassButton"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/circle1" />
 

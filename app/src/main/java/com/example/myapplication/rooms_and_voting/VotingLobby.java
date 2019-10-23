@@ -3,6 +3,7 @@ package com.example.myapplication.rooms_and_voting;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -19,10 +20,10 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,10 +32,14 @@ import com.example.myapplication.R;
 import com.example.myapplication.homePage;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.nio.charset.Charset;
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+
+import static android.view.View.VISIBLE;
 
 
 public class VotingLobby extends AppCompatActivity{
@@ -42,20 +47,20 @@ public class VotingLobby extends AppCompatActivity{
     private static final int REQUEST_ENABLE_BT = 1001;
     private static final int REQUEST_ENABLE_BT_DISCOVERY = 1002;
     private static final int REQUEST_ENABLE_DT_CONNECT = 1003;
-    private static final int DISCOVERY_DURATION = 100;
+    private static final int DISCOVERY_DURATION = 300;
     private static final UUID UUID = java.util.UUID.fromString("238c71d5-924d-4f72-af44-89b9e2cc9582");
     public static final String TAG = "TAG";
 
     private Context context;
-    private boolean blueoothPermission;
     private ArrayList<BluetoothDevice> deviceList = new ArrayList<>();
     private ArrayList<BluetoothDevice> deviceDisplayList = new ArrayList<>();
     private BluetoothDevice workingDevice;
-    private BluetoothDataTransferService bluetoothDataTransferService;
-    // will be used for a transition to the next page //
-    private List<String> finalList;
-
+    private CardView cardViewProgress;
     private BluetoothAdapter bluetoothAdapter;
+
+    //TODO: Holy shit batman, great idea! Make the bluetooth device name NOT actually the device name. Make it the persons' respective ACCOUNT NAME //
+    // TODO: Do something like "If (isDeviceConnectedToWithWtvr) -> devicename = accountName (.... this might be hard to do but it's SO IMPORTANT ) //
+
     // To anyone reading this, I went overkill on all of these receivers for ongoing learning purposes. The majority of it doesn't really have a practical function. //
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
@@ -91,6 +96,7 @@ public class VotingLobby extends AppCompatActivity{
                 switch (scanMode) {
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
                         Log.d(TAG, "onReceive: Puede descubrir y conectar.");
+                        Snackbar.make(constraintLayout, "Device is now discoverable and searching. (Press refresh if necessary)", Snackbar.LENGTH_LONG);
                         break;
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
                         Log.d(TAG, "onReceive: Puede conectar, pero no descubrir.");
@@ -113,7 +119,6 @@ public class VotingLobby extends AppCompatActivity{
                 if (!deviceList.contains(device)) {
                     deviceList.add(device);
                 }
-                Log.d(TAG, "onReceive: " + deviceName + " , " + deviceHardwareAddress);
             }
         }
     };
@@ -126,20 +131,21 @@ public class VotingLobby extends AppCompatActivity{
                 final int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
                 switch (bondState) {
                     case BluetoothDevice.BOND_BONDED:
-                        Log.d(TAG, "onReceive: Aparatos han hecho amigos!");
+                        Log.d(TAG, "onReceive: Devices have successfully paired.");
+                        Snackbar.make(constraintLayout, "Successfully paired with " + someDevice.getName(), Snackbar.LENGTH_LONG).show();
                         workingDevice = someDevice;
                         bluetoothAdapter.startDiscovery();
                         updateDeviceDisplay();
                         break;
                     case BluetoothDevice.BOND_BONDING:
-                        // TODO: below line is just for testing without a 2nd phone purposes //
-                        updateDeviceDisplay();
-                        Log.d(TAG, "onReceive: Aparatos estan haciendo amigos...");
+                        Log.d(TAG, "onReceive: Devices attempting to pair...");
                         break;
                     case BluetoothDevice.BOND_NONE:
+                        Snackbar.make(constraintLayout, "Something went wrong...", Snackbar.LENGTH_LONG).show();
                         deviceDisplayList.remove(deviceDisplayList.size() - 1);
                         updateDeviceDisplay();
-                        Log.d(TAG, "onReceive: una cosa no esta trabajando correctamente");
+                        bluetoothAdapter.startDiscovery();
+                        Log.d(TAG, "onReceive: Something went wrong");
                         break;
                 }
             }
@@ -150,37 +156,35 @@ public class VotingLobby extends AppCompatActivity{
     private onDeviceClickedListener listener;
     private DeviceListAdapter deviceListAdapter;
     private DeviceDisplayAdapter deviceDisplayAdapter;
-    private RecyclerView alltheDeviceDisplays;
-
-
-
-
-
-
-
-
+    private RecyclerView allTheDeviceDisplays;
+    private Set<BluetoothDevice> pairedDevices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voting_lobby);
 
-        String roomName = getIntent().getStringExtra("ROOMNAME");
+        /*String roomName = getIntent().getStringExtra("ROOMNAME");
         TextView theRoomName = findViewById(R.id.roomName);
-        theRoomName.setText(roomName);
+        theRoomName.setText(roomName); */
 
         constraintLayout = findViewById(R.id.votingConLay);
         context = this;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        cardViewProgress = findViewById(R.id.progressCard);
+        pairedDevices = bluetoothAdapter.getBondedDevices();
+
         listener = new onDeviceClickedListener() {
             @Override
             public void touchedDevice(int position) {
-                bluetoothDataTransferService = new BluetoothDataTransferService(context);
-                // TODO: If already paired, still add this to the list, and start the whole serviceConnection process as well. //
-                Snackbar.make(constraintLayout, "Connecting to " + deviceList.get(position).getName() + "...", Snackbar.LENGTH_LONG);
-                // TODO: make it so it only cancels discovery if the devices are NOT already paired. If they're paired, no need to waste time turning this off and on again //
-                bluetoothAdapter.cancelDiscovery();
-                deviceList.get(position).createBond();
+                if (!pairedDevices.contains(deviceList.get(position))){
+                    Snackbar.make(constraintLayout, "Connecting to " + deviceList.get(position).getName() + "...", Snackbar.LENGTH_INDEFINITE).show();
+                    bluetoothAdapter.cancelDiscovery();
+                    deviceList.get(position).createBond();
+                } else {
+                    Snackbar.make(constraintLayout, "Successfully paired with " + deviceList.get(position).getName(), Snackbar.LENGTH_LONG).show();
+                    updateDeviceDisplay();
+                }
                 workingDevice = deviceList.get(position);
                 deviceDisplayList.add(deviceList.get(position));
             }
@@ -196,28 +200,34 @@ public class VotingLobby extends AppCompatActivity{
 
         ImageView refreshButton = findViewById(R.id.hostRefreshList);
         RecyclerView allTheDevices = findViewById(R.id.hostRecyclerAllDevices);
-        alltheDeviceDisplays = findViewById(R.id.hostRecylerDevicesConnected);
-        alltheDeviceDisplays.setAdapter(deviceDisplayAdapter);
-        alltheDeviceDisplays.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        allTheDeviceDisplays = findViewById(R.id.hostRecylerDevicesConnected);
+        allTheDeviceDisplays.setAdapter(deviceDisplayAdapter);
+        allTheDeviceDisplays.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        allTheDevices.setAdapter(deviceListAdapter);
+        allTheDevices.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
 
-        // TODO: all of this stuff below could be made UI/UX friendly by just putting it through a service. You wouldn't even need the refresh button if it was constantly updating //
-
-        Button allowOthers = findViewById(R.id.allowOthersButton);
+        ImageView allowOthers = findViewById(R.id.allowOthersButton);
         allowOthers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkPermissionBluetoothDiscover();
                 startGettingDiscovered();
                 findOtherDevices();
-                allTheDevices.setAdapter(deviceListAdapter);
-                allTheDevices.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+                cardViewProgress.setVisibility(View.VISIBLE);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        cardViewProgress.setVisibility(View.INVISIBLE);
+                        deviceListAdapter.notifyDataSetChanged();
+                    }
+                },5000);
             }
         });
 
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                allTheDevices.setAdapter(deviceListAdapter);
                 deviceListAdapter.notifyDataSetChanged();
             }
         });
@@ -228,94 +238,33 @@ public class VotingLobby extends AppCompatActivity{
             public void onClick(View v) {
                 Intent intent = new Intent(context, CreateDestinations.class);
                 intent.putParcelableArrayListExtra("CONNECTED_DEVICES", deviceDisplayList);
-                startAnActivity(intent);
+                intent.putExtra("IS_HOST", true);
+                // intent.putExtra("ROOMNAME", roomName);
+                startActivity(intent);
             }
         });
 
-        Button createConnection = findViewById(R.id.createConnectionButton);
+        ImageView createConnection = findViewById(R.id.createConnectionButton);
         createConnection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startBTConnection(workingDevice, UUID);
-            }
-        });
-
-        EditText practiceTransfer = findViewById(R.id.workingTextView);
-        Button practiceSend = findViewById(R.id.practiceSend);
-        practiceSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                byte[] bytes = practiceTransfer.getText().toString().getBytes(Charset.defaultCharset());
-                bluetoothDataTransferService.write(bytes);
-            }
-        });
-
-        /* TODO: The service here will then regularly in the background be looping through constantly
-            to add any new options to the list. All this stuff below can be re-used on the actual
-            posting of destinations on the next page.
-         */
-
-        /* final AddOptionThread addOptionThread = new AddOptionThread(this);
-        addOptionThread.setName("Add Destinations");
-        addOptionThread.start();
-
-        addOptionButton = findViewById(R.id.addOptionButton);
-        addOptionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText inputEdit = findViewById(R.id.addOptionText);
-                String input = inputEdit.getText().toString();
-                Message message = Message.obtain();
-                message.obj = input;
-                addOptionThread.handler.sendMessage(message);
-            }
-        });
-
-        startVoteButton = findViewById(R.id.startVoteButton);
-        startVoteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startAnActivity(ActualVoting.class);
+                if (workingDevice == null){
+                    Snackbar.make(constraintLayout, "Must first pair with at least 1 device.", Snackbar.LENGTH_LONG).show();
+                } else if (deviceDisplayList.contains(workingDevice)) {
+                    Snackbar.make(constraintLayout, "You're not doing this connection part here anymore.", Snackbar.LENGTH_LONG).show();
+                }
             }
         });
     }
 
-    @Override
-    public void addToList(final String newDestination) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LinearLayout linearLayout = findViewById(R.id.linearLayoutOptions);
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
-                TextView newOption = new TextView(getApplicationContext());
-                newOption.setText(newDestination);
-                newOption.setPadding(0,16,0,0);
-                linearLayout.addView(newOption);
-                Toast.makeText(getApplicationContext(), "Poll option created.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    } */
-    }
-
-    public void startBTConnection(BluetoothDevice device, UUID uuid){
-        Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
-        // TODO: when youre having more than 1 connection here, will need to change the below to startServiceAsServer and move this to the VotingLobbyJoiner //
-        bluetoothDataTransferService.startServiceAsClient(device,uuid);
-    }
 
     private void updateDeviceDisplay(){
-        alltheDeviceDisplays.setAdapter(deviceDisplayAdapter);
+        allTheDeviceDisplays.setAdapter(deviceDisplayAdapter);
         deviceDisplayAdapter.notifyDataSetChanged();
-    }
-
-    private void startAnActivity(Intent intent) {
-        startActivity(intent);
     }
 
    private void startGettingDiscovered() {
        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-       //TODO: change ths duration below when app goes to production //
-       // Also... pretty sure i found a bug? The duration time becomes the resultCode for onActivityResult. Super weird //
        intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERY_DURATION);
        startActivityForResult(intent, REQUEST_ENABLE_BT_DISCOVERY);
 
@@ -336,14 +285,15 @@ public class VotingLobby extends AppCompatActivity{
 
     public void setUpBluetooth(){
         if (bluetoothAdapter == null){
-            Snackbar.make(constraintLayout, "Compra un fono nuevo abuelo. Lo necesita bluetooth.", Snackbar.LENGTH_LONG).show();
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Intent intent = new Intent(context, homePage.class);
-            startAnActivity(intent);
+            Snackbar.make(constraintLayout, "Buy a new phone grandpa. It needs bluetooth.", Snackbar.LENGTH_LONG).show();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(context, homePage.class);
+                    startActivity(intent);
+                }
+            }, 3000);
         } else {
             if (bluetoothAdapter.isEnabled()){
                 IntentFilter intentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -402,11 +352,9 @@ public class VotingLobby extends AppCompatActivity{
                 if (grantResults.length > 0) {
                     for (int i : grantResults) {
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            blueoothPermission = false;
                             Toast.makeText(context, "Cannot proceed without bluetooth/location permissions.", Toast.LENGTH_SHORT).show();
                             break;
                         } else {
-                            blueoothPermission = true;
                             Toast.makeText(context, "Bluetooth/location permission granted.", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -416,10 +364,14 @@ public class VotingLobby extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(bluetoothReceiver);
-        unregisterReceiver(bluetoothDiscoverReceiver);
-        unregisterReceiver(bluetoothFindOthersReceiver);
-        unregisterReceiver(bluetoothBondingReceiver);
+        BroadcastReceiver[] allTheReceivers = {bluetoothReceiver, bluetoothDiscoverReceiver, bluetoothFindOthersReceiver, bluetoothBondingReceiver};
+        for (BroadcastReceiver receiver : allTheReceivers){
+            try{
+                unregisterReceiver(receiver);
+            } catch (IllegalArgumentException e){
+                e.printStackTrace();
+            }
+        }
         super.onDestroy();
     }
 }

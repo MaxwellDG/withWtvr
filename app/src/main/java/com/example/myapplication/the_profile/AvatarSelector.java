@@ -1,18 +1,26 @@
 package com.example.myapplication.the_profile;
 
+import android.annotation.SuppressLint;
+import android.util.SparseArray;
+
 import com.example.myapplication.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AvatarSelector {
 
     private int avatarNumber;
     private String avatarName;
 
+    public AvatarSelector() {
+    }
+
     public AvatarSelector(int avatarNumber){
         this.avatarNumber = avatarNumber;
     }
 
-
-    // TODO: Remember drunk Max - it's alot more psychologicallylylylyl intriguing for people if you don't include the names in the selection screen. Just have the photos and the related text will surprisingly pop-up //
     public int getAvatarPhoto(){
         switch (avatarNumber){
             case 1:
@@ -54,7 +62,7 @@ public class AvatarSelector {
         } return R.drawable.ic_account_box_black_24dp;
     }
 
-    public String getAvatarName() {
+    String getAvatarName() {
         return avatarName;
     }
 
@@ -68,5 +76,22 @@ public class AvatarSelector {
 
     public void setAvatarNumber(int avatarNumber) {
         this.avatarNumber = avatarNumber;
+    }
+
+    HashMap<Integer, Integer> getAllAvatarResources(){
+        @SuppressLint("UseSparseArrays") HashMap<Integer, Integer> allAvatarsInfo = new HashMap<>();
+        allAvatarsInfo.put(1, R.drawable.agiantbaby);
+        allAvatarsInfo.put(2, R.drawable.alwayspositive);
+        allAvatarsInfo.put(3, R.drawable.atotaltramp);
+        allAvatarsInfo.put(4, R.drawable.endupinjail);
+        allAvatarsInfo.put(5, R.drawable.gettinglost);
+        allAvatarsInfo.put(6, R.drawable.gottarallythetroops);
+        allAvatarsInfo.put(7, R.drawable.heretodance);
+        allAvatarsInfo.put(8, R.drawable.onlyhereforlatenighteats);
+        allAvatarsInfo.put(9, R.drawable.takentoomuch);
+        allAvatarsInfo.put(10, R.drawable.toooldforthiscrap);
+        allAvatarsInfo.put(11, R.drawable.withtheirpartner);
+        allAvatarsInfo.put(12, R.drawable.wrestle9000);
+        return allAvatarsInfo;
     }
 }

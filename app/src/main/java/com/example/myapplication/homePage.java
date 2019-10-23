@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.myapplication.rooms_and_voting.VotingLobby;
+import com.example.myapplication.rooms_and_voting.VotingLobbyJoiner;
 import com.example.myapplication.the_near_me.MapsActivity;
 import com.example.myapplication.the_profile.ProfilePage;
 
@@ -40,8 +42,9 @@ public class homePage extends AppCompatActivity {
         createRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog(context, 1);
-                createRoomDialog.show(getSupportFragmentManager(), "Create Room");
+                startAnActivity(VotingLobby.class);
+                //CreateRoomDialog createRoomDialog = new CreateRoomDialog(context, 1);
+                //createRoomDialog.show(getSupportFragmentManager(), "Create Room");
             }
         });
 
@@ -49,13 +52,13 @@ public class homePage extends AppCompatActivity {
         joinRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: Application context is: " + getApplicationContext());
-                CreateRoomDialog createRoomDialog = new CreateRoomDialog(getApplicationContext(), 2);
-                createRoomDialog.show(getSupportFragmentManager(), "Join Room");
+                startAnActivity(VotingLobbyJoiner.class);
+                //CreateRoomDialog createRoomDialog = new CreateRoomDialog(getApplicationContext(), 2);
+                //createRoomDialog.show(getSupportFragmentManager(), "Join Room");
             }
         });
 
-        needIdeasButton = findViewById(R.id.needIdeasButton);
+        needIdeasButton = findViewById(R.id.compassButton);
         needIdeasButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,10 +78,13 @@ public class homePage extends AppCompatActivity {
         helpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: make a dialog here with sub-headers to explain what everything does //
+                HelpDialogFragment helpDialogFragment = new HelpDialogFragment();
+                helpDialogFragment.show(getSupportFragmentManager(), "Help Dialog");
             }
         });
     }
+
+    // TODO: The whole "back-stack" and going up and shit and wtvr for everypage //
 
     public void startAnActivity(Class aClass){
         Intent intent = new Intent(this, aClass);

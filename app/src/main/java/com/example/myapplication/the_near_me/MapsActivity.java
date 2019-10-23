@@ -6,7 +6,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -17,13 +16,10 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -460,21 +456,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (requestCode){
             case LOCATION_PERMISSIONS_REQUEST_CODE:
                 if (grantResults.length > 0){
-                    for(int i : grantResults){
-                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                            isLocationEnabled = false;
-                            updateDatabaseGPS(false);
-                            break;
+                    for(int i : grantResults) {
+                        try {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                isLocationEnabled = false;
+                                updateDatabaseGPS(false);
+                                break;
+                            }
+                            isLocationEnabled = true;
+                            updateDatabaseGPS(true);
+                            updateLocationUI();
+                        } catch (RuntimeException e){
+                            Log.d(TAG, "onRequestPermissionsResult: " + e.toString());
                         }
-                        isLocationEnabled = true;
-                        updateDatabaseGPS(true);
-                        updateLocationUI();
                     }
                 }
         }
     }
 
-    // Methods: Navigation //
+    // Methods: App Navigation //
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -489,18 +489,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.clear();
                 break;
             case R.id.gobackMenu:
+                Intent intent = new Intent(this, homePage.class);
                 finish();
-                startAnActivity(homePage.class);
+                startActivity(intent);
                 break;
             case R.id.map_profile_menu:
+                Intent intent2 = new Intent(this, ProfilePage.class);
+                intent2.putExtra("USERNAME", username);
                 finish();
-                startAnActivity(ProfilePage.class);
+                startActivity(intent2);
+                break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void startAnActivity(Class aClass){
-        Intent intent = new Intent(this, aClass);
-        startActivity(intent);
     }
 }
