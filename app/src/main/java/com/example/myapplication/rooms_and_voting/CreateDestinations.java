@@ -1,7 +1,7 @@
 package com.example.myapplication.rooms_and_voting;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NavUtils;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.bluetooth.BluetoothDevice;
@@ -14,11 +14,10 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Parcelable;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -26,12 +25,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.WrapperListAdapter;
 
 import com.example.myapplication.R;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -49,8 +46,15 @@ public class CreateDestinations extends AppCompatActivity implements TheHandler.
     private BroadcastReceiver broadcastReceiverIncomingMessages = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getStringExtra("THE_MESSAGE") != null) {
-                allDestinations.add(intent.getStringExtra("THE_MESSAGE"));
+            Log.d(TAG, "onReceive: ROGER????");
+            String incoming = intent.getStringExtra("THE_MESSAGE");
+            if ("BRUYOUREREADY".equals(incoming)) {
+                Log.d(TAG, "onReceive: ROGER ROGER");
+                changeUIWhenReadyForInput();
+            } else {
+                if (!allDestinations.contains(incoming) && !incoming.contains("@@@")) {
+                    allDestinations.add(incoming);
+                }
                 Message message = Message.obtain();
                 message.obj = intent.getStringExtra("THE_MESSAGE");
                 addOptionThread.handler.sendMessage(message);
@@ -74,9 +78,11 @@ public class CreateDestinations extends AppCompatActivity implements TheHandler.
 
     private LinearLayout linearLayout;
     private TextView promptText;
+    private Button addOptionButton;
     private Context context = this;
     private ProgressBar progressBar;
-    private int connectionCounter = 0;
+    private ArrayList<RelativeLayout> allTheViews = new ArrayList<>();
+    private ArrayList<ImageView> allTheXs = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +94,11 @@ public class CreateDestinations extends AppCompatActivity implements TheHandler.
         promptText = findViewById(R.id.destinationPromptText);
         progressBar = findViewById(R.id.destinationProgressBar);
 
-        /*String roomName = getIntent().getStringExtra("ROOMNAME");
-        TextView theRoomName = findViewById(R.id.destinationsRoomText);
-        theRoomName.setText(roomName);
-         */
-
         addOptionThread = new AddOptionThread(this);
         addOptionThread.setName("Add Destinations");
         addOptionThread.start();
+
+
 
         Intent intent = getIntent();
         if (intent != null){
@@ -109,18 +112,24 @@ public class CreateDestinations extends AppCompatActivity implements TheHandler.
         }
         connectToPairedDevices(connectedDevicesList);
 
-        Button addOptionButton = findViewById(R.id.destinationSubmitButton);
+        addOptionButton = findViewById(R.id.destinationSubmitButton);
         addOptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EditText inputEdit = findViewById(R.id.destinationEditText);
                 if (!inputEdit.getText().toString().isEmpty()) {
                     byte[] bytes = inputEdit.getText().toString().getBytes(Charset.defaultCharset());
-                    bluetoothDataTransferService.write(bytes);
+                    try {
+                        bluetoothDataTransferService.write(bytes);
+                    } catch (NullPointerException e) {
+                        Log.d(TAG, "onClick: Just practicing");
+                    }
                     Message message = Message.obtain();
                     message.obj = inputEdit.getText().toString();
                     addOptionThread.handler.sendMessage(message);
-                    allDestinations.add(inputEdit.getText().toString());
+                    if(!allDestinations.contains(inputEdit.getText().toString())) {
+                        allDestinations.add(inputEdit.getText().toString());
+                    }
                     inputEdit.setText("");
             }
         }
@@ -134,45 +143,64 @@ public class CreateDestinations extends AppCompatActivity implements TheHandler.
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ActualVoting.class);
-                intent.putStringArrayListExtra("ALL_DESTINATIONS", allDestinations);
+                ArrayList<String> allDestinationsFinal = removeDuplicates(allDestinations);
+                intent.putStringArrayListExtra("ALL_DESTINATIONS", allDestinationsFinal);
                 intent.putExtra("IS_HOST", isHost);
-                // intent.putExtra("ROOMNAME", roomName);
                 // TODO: something that only allows the host to actually do this. Otherwise the joiner's page just hangs with a different colour ready button //
                 startActivity(intent);
             }
         });
     }
 
+    public static <T> ArrayList<T> removeDuplicates(ArrayList<T> list) {
+        ArrayList<T> newList = new ArrayList<T>();
+        for (T element : list) {
+            if (!newList.contains(element)) {
+                newList.add(element);
+            }
+        }
+        return newList;
+    }
+
     public void connectToPairedDevices(ArrayList<BluetoothDevice> pairedDevices){
-        int numberOfConnectionsToBeMade = pairedDevices.size();
+        int deviceConnectionsToBeMade = pairedDevices.size();
         if (isHost) {
             Log.d(TAG, "connectToPairedDevices: Youre the host");
+            int connectionsMade = 0;
             for (BluetoothDevice device : pairedDevices) {
+                // TODO: this will have to be changed when you have more than 1 device connected //
                 Intent intent = new Intent(context, BluetoothDataTransferService.class);
                 intent.putExtra("SERVICE_ID", 1);
                 startService(intent);
                 bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-
-                connectionCounter++;
-                if (connectionCounter == numberOfConnectionsToBeMade){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setVisibility(View.GONE);
-                            promptText.setVisibility(View.VISIBLE);
-                        }
-                    });
-                }
+                connectionsMade++;
           }
+            if (connectionsMade == deviceConnectionsToBeMade){
+                Log.d(TAG, "connectToPairedDevices: We're atleast here.");
+                Handler handler = new Handler();
+                byte[] completionMessage = "BRUYOUREREADY".getBytes(Charset.defaultCharset());
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (bluetoothDataTransferService != null) {
+                            if (bluetoothDataTransferService.getIsStreamConnected()) {
+                                bluetoothDataTransferService.write(completionMessage);
+                                changeUIWhenReadyForInput();
+                                Log.d(TAG, "connectToPairedDevices: ROGER ROGER HOST");
+                            } else {
+                                Log.d(TAG, "run: WAS NULL TRYING AGAIN.");
+                                handler.postDelayed(this, 1000);
+                            }
+                        } else {
+                            handler.postDelayed(this, 1000);
+                        }
+                    }
+                };
+                handler.post(runnable);
+            }
         } else {
-            Log.d(TAG, "connectToPairedDevices: Youre the joiner. Matched with" + pairedDevices.get(0));
+            Log.d(TAG, "connectToPairedDevices: Youre the joiner. Matching with" + pairedDevices.get(0));
             Intent intent2 = new Intent(context, BluetoothDataTransferService.class);
-            progressBar.setVisibility(View.GONE);
-            promptText.setVisibility(View.VISIBLE);
-
-            // TODO: might not need a listener if you just do all of this stuff in the onStart lifecycle method.? Maybe. I don't know.
-            //TODO: WE'LL DO THE LISTENER STUFF AFTER THE SERVICE IS ESTABLISHED + the interace class might need to become parcelable/serializable //
-            // intent2.putExtra("JOINER_LISTENER", (Parcelable) onConnectionEstablishedListener);
             intent2.putExtra("DEVICE_TO_CONNECT", pairedDevices.get(0));
             intent2.putExtra("UUID", UUIDCLIENT);
             intent2.putExtra("SERVICE_ID", 2);
@@ -184,55 +212,122 @@ public class CreateDestinations extends AppCompatActivity implements TheHandler.
     @Override
     public void addToList(final String newDestination) {
         runOnUiThread(() -> {
-            // TODO: Add something in HELP menu that states the rule: Only the host can delete views //
-            if (!allDestinations.isEmpty()){
-                promptText.setVisibility(View.GONE);
-            } else {
-                promptText.setVisibility(View.VISIBLE);
-            }
-            LinearLayout newOptionLayout = new LinearLayout(context);
+
+            checkForDeleteDestination(newDestination);
+
+            if (!newDestination.contains("@@@")){
+                if (!allDestinations.isEmpty()) {
+                    promptText.setVisibility(View.GONE);
+                } else {
+                    promptText.setVisibility(View.VISIBLE);
+                }
+
+            RelativeLayout newOptionLayout = new RelativeLayout(context);
+            allTheViews.add(newOptionLayout);
+            RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params1.setMargins(0, 24, 0, 0);
             newOptionLayout.setBackgroundColor(Color.WHITE);
-            newOptionLayout.setPadding(0,8,0,0);
-            TextView newOption = new TextView(context);
-            newOption.setText(newDestination);
-            newOption.setTextSize(20f);
-            newOption.setTextColor(Color.BLACK);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            newOptionLayout.addView(newOption, params);
-            if (isHost){
+            newOptionLayout.setLayoutParams(params1);
+
+            ImageView imageView = new ImageView(context);
+            allTheXs.add(imageView);
+            imageView.setImageResource(R.drawable.baseline_close_black_18dp);
+            imageView.setVisibility(View.GONE);
+            RelativeLayout.LayoutParams params3 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params3.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            params3.addRule(RelativeLayout.CENTER_VERTICAL);
+            params3.setMargins(16, 0, 16, 0);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    for (RelativeLayout layout : allTheViews) {
+                        if (layout.indexOfChild(v) != -1) {
+                            TextView view = (TextView) layout.getChildAt(0);
+                            String text = view.getText().toString();
+                            allDestinations.remove(text);
+                            Log.d(TAG, "onClick: REMOVED: " + text + "For host, allDestinations is now: " + allDestinations);
+                            String textSend = "@@@" + text;
+                            Log.d(TAG, "SENDING FOR DELETE: " + textSend);
+                            byte[] bytes = textSend.getBytes(Charset.defaultCharset());
+                            bluetoothDataTransferService.write(bytes);
+                            linearLayout.removeView(layout);
+
+                        }
+                    }
+                }
+            });
+
+            TextView newOptionText = new TextView(context);
+            newOptionText.setText(newDestination);
+            newOptionText.setTextSize(32f);
+            newOptionText.setTextColor(Color.BLACK);
+            RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+            params2.setMargins(16, 0, 16, 0);
+
+            newOptionLayout.addView(newOptionText, params2);
+            newOptionLayout.addView(imageView, params3);
+
+            if (isHost) {
                 newOptionLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ImageView newOptionX = new ImageView(context);
-                        newOptionX.setImageResource(R.drawable.baseline_close_black_18dp);
-                        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        params2.gravity = Gravity.RIGHT;
-                        ColorDrawable colorDrawable = (ColorDrawable) newOptionLayout.getBackground();
-                        int color = colorDrawable.getColor();
-                        if (color == Color.YELLOW) {
-                            newOptionLayout.setBackgroundColor(Color.WHITE);
-                            try {
-                                newOptionLayout.removeView(newOptionX);
-                            } catch (NullPointerException e){
-                                e.printStackTrace();
+                        int position = allTheViews.indexOf(v);
+                        Log.d(TAG, "onClick: position is: " + position);
+                        for (ImageView image : allTheXs) {
+                            if (allTheXs.indexOf(image) == position) {
+                                if (image.getVisibility() == View.VISIBLE) {
+                                    image.setVisibility(View.GONE);
+                                } else {
+                                    image.setVisibility(View.VISIBLE);
+                                }
+                            } else {
+                                image.setVisibility(View.GONE);
                             }
-                        } else {
-                            newOptionLayout.setBackgroundColor(Color.YELLOW);
-                            newOptionLayout.addView(newOptionX, params2);
                         }
-                        newOptionX.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                linearLayout.removeView(newOptionLayout);
-                                // TODO: somehow transfer this removal to all the participants //
+                        for (RelativeLayout layout : allTheViews) {
+                            ColorDrawable colorDrawable = (ColorDrawable) layout.getBackground();
+                            int color = colorDrawable.getColor();
+                            if (allTheViews.indexOf(layout) == position) {
+                                if (color == Color.YELLOW) {
+                                    layout.setBackgroundColor(Color.WHITE);
+                                } else {
+                                    layout.setBackgroundColor(Color.rgb(255, 204, 184));
+                                }
+                            } else {
+                                layout.setBackgroundColor(Color.WHITE);
                             }
-                        });
+                        }
                     }
                 });
             }
             linearLayout.addView(newOptionLayout);
+        }
         });
+        }
+
+
+    public void checkForDeleteDestination(String deleteString){
+        if (deleteString.contains("@@@")) {
+            deleteString = deleteString.substring(3);
+            allDestinations.remove(deleteString);
+            Log.d(TAG, "DELETING: " + deleteString);
+        }
+        for (RelativeLayout layout : allTheViews) {
+            TextView view = (TextView) layout.getChildAt(0);
+            String text = view.getText().toString();
+            if (text.equals(deleteString)) {
+                linearLayout.removeView(layout);
+            }
+        }
+        }
+
+    public void changeUIWhenReadyForInput(){
+        progressBar.setVisibility(View.INVISIBLE);
+        promptText.setVisibility(View.VISIBLE);
+        addOptionButton.setEnabled(true);
     }
+
 
     @Override
     protected void onDestroy() {
@@ -242,5 +337,10 @@ public class CreateDestinations extends AppCompatActivity implements TheHandler.
             e.printStackTrace();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        NavUtils.navigateUpFromSameTask(this);
     }
 }

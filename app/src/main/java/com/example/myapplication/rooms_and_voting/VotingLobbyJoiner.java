@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -159,11 +160,6 @@ public class VotingLobbyJoiner extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voting_lobby_joiner);
 
-        /*String roomName = getIntent().getStringExtra("ROOMNAME");
-        TextView theRoomName = findViewById(R.id.joinerRoomName);
-        theRoomName.setText(roomName);
-        */
-
         constraintLayout = findViewById(R.id.joinerConLay);
         context = this;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -171,6 +167,7 @@ public class VotingLobbyJoiner extends AppCompatActivity {
         joinerStatusImage = findViewById(R.id.joinerHostConnectedImage);
         statusText = findViewById(R.id.joinerStatusText);
         statusTextTop = findViewById(R.id.joinerStatusTextTop);
+
         listener = new onDeviceClickedListener() {
             @Override
             public void touchedDevice(int position) {
@@ -233,11 +230,16 @@ public class VotingLobbyJoiner extends AppCompatActivity {
         joinerDestinationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, CreateDestinations.class);
-                // intent.putExtra("ROOMNAME", roomName);
-                intent.putExtra("IS_HOST", false);
-                intent.putParcelableArrayListExtra("CONNECTED_DEVICES", deviceDisplayList);
-                startActivity(intent);
+                if (deviceDisplayList.size() == 1) {
+                    Intent intent = new Intent(context, CreateDestinations.class);
+                    intent.putExtra("IS_HOST", false);
+                    intent.putParcelableArrayListExtra("CONNECTED_DEVICES", deviceDisplayList);
+                    startActivity(intent);
+                } else if (deviceDisplayList.size() == 0){
+                    Snackbar.make(constraintLayout, "Must pair with a device first", Snackbar.LENGTH_LONG).show();
+                } else {
+                    Snackbar.make(constraintLayout, "There was an error, please start again.", Snackbar.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -352,5 +354,10 @@ public class VotingLobbyJoiner extends AppCompatActivity {
             }
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        NavUtils.navigateUpFromSameTask(this);
     }
 }

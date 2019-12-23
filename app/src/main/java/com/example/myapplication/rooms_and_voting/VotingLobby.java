@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,24 +23,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.example.myapplication.homePage;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static android.view.View.VISIBLE;
 
 
 public class VotingLobby extends AppCompatActivity{
@@ -56,10 +54,8 @@ public class VotingLobby extends AppCompatActivity{
     private ArrayList<BluetoothDevice> deviceDisplayList = new ArrayList<>();
     private BluetoothDevice workingDevice;
     private CardView cardViewProgress;
+    private ImageView menu;
     private BluetoothAdapter bluetoothAdapter;
-
-    //TODO: Holy shit batman, great idea! Make the bluetooth device name NOT actually the device name. Make it the persons' respective ACCOUNT NAME //
-    // TODO: Do something like "If (isDeviceConnectedToWithWtvr) -> devicename = accountName (.... this might be hard to do but it's SO IMPORTANT ) //
 
     // To anyone reading this, I went overkill on all of these receivers for ongoing learning purposes. The majority of it doesn't really have a practical function. //
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
@@ -153,7 +149,6 @@ public class VotingLobby extends AppCompatActivity{
     };
 
     private ConstraintLayout constraintLayout;
-    private onDeviceClickedListener listener;
     private DeviceListAdapter deviceListAdapter;
     private DeviceDisplayAdapter deviceDisplayAdapter;
     private RecyclerView allTheDeviceDisplays;
@@ -164,20 +159,18 @@ public class VotingLobby extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voting_lobby);
 
-        /*String roomName = getIntent().getStringExtra("ROOMNAME");
-        TextView theRoomName = findViewById(R.id.roomName);
-        theRoomName.setText(roomName); */
-
         constraintLayout = findViewById(R.id.votingConLay);
         context = this;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         cardViewProgress = findViewById(R.id.progressCard);
+        menu = findViewById(R.id.lobbyMenu);
+
         pairedDevices = bluetoothAdapter.getBondedDevices();
 
-        listener = new onDeviceClickedListener() {
+        onDeviceClickedListener listener = new onDeviceClickedListener() {
             @Override
             public void touchedDevice(int position) {
-                if (!pairedDevices.contains(deviceList.get(position))){
+                if (!pairedDevices.contains(deviceList.get(position))) {
                     Snackbar.make(constraintLayout, "Connecting to " + deviceList.get(position).getName() + "...", Snackbar.LENGTH_INDEFINITE).show();
                     bluetoothAdapter.cancelDiscovery();
                     deviceList.get(position).createBond();
@@ -236,11 +229,15 @@ public class VotingLobby extends AppCompatActivity{
         startDestination.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, CreateDestinations.class);
-                intent.putParcelableArrayListExtra("CONNECTED_DEVICES", deviceDisplayList);
-                intent.putExtra("IS_HOST", true);
-                // intent.putExtra("ROOMNAME", roomName);
-                startActivity(intent);
+                if (deviceDisplayList.size() != 0) {
+                    Intent intent = new Intent(context, CreateDestinations.class);
+                    intent.putParcelableArrayListExtra("CONNECTED_DEVICES", deviceDisplayList);
+                    intent.putExtra("IS_HOST", true);
+                    // intent.putExtra("ROOMNAME", roomName);
+                    startActivity(intent);
+                } else {
+                    Snackbar.make(constraintLayout, "Must pair with at least 1 device.", Snackbar.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -255,6 +252,36 @@ public class VotingLobby extends AppCompatActivity{
                 }
             }
         });
+
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(VotingLobby.this, menu);
+                getMenuInflater().inflate(R.menu.lobby_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()){
+                            case R.id.lobbyMenuHelp:
+                                Log.d(TAG, "onMenuItemClick: poop");
+                                break;
+                            case R.id.lobbyMenuDeviceName:
+                                Log.d(TAG, "onMenuItemClick: "+ bluetoothAdapter.getName());
+                                //TODO: you can setName? wtf lol //
+                                Log.d(TAG, "onMenuItemClick: " + Build.MODEL);
+                                Log.d(TAG, "onMenuItemClick: " + bluetoothAdapter.getAddress());
+                                break;
+                            case R.id.lobbyMenuExit:
+                                onBackPressed();
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
+            }
+        });
+
     }
 
 
@@ -306,15 +333,13 @@ public class VotingLobby extends AppCompatActivity{
     }
 
     public void checkPermissionBluetoothDiscover(){
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission
-                    (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ENABLE_DT_CONNECT);
-            } else {
-                Log.d(TAG, "checkPermissionBluetoothDiscover: Ya aparato esta listo.");
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission
+                (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ENABLE_DT_CONNECT);
+        } else {
+            Log.d(TAG, "checkPermissionBluetoothDiscover: Ya aparato esta listo.");
         }
     }
 
@@ -333,9 +358,7 @@ public class VotingLobby extends AppCompatActivity{
                 break;
             case REQUEST_ENABLE_BT_DISCOVERY:
                 // pretty sure the resultCode here is a wonky bug. It's referring to the set duration //
-                if (resultCode == DISCOVERY_DURATION){
-                    // Toast.makeText(context, "Bluetooth has enabled discovery.", Toast.LENGTH_SHORT).show();
-                } else if(resultCode == RESULT_CANCELED) {
+                if(resultCode == RESULT_CANCELED) {
                     Snackbar.make(constraintLayout, "Your device is not discoverable.", Snackbar.LENGTH_LONG).show();
                 } else{
                     Snackbar.make(constraintLayout, "WOah....", Snackbar.LENGTH_LONG).show();
@@ -347,19 +370,23 @@ public class VotingLobby extends AppCompatActivity{
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_ENABLE_DT_CONNECT:
-                if (grantResults.length > 0) {
-                    for (int i : grantResults) {
-                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(context, "Cannot proceed without bluetooth/location permissions.", Toast.LENGTH_SHORT).show();
-                            break;
-                        } else {
-                            Toast.makeText(context, "Bluetooth/location permission granted.", Toast.LENGTH_SHORT).show();
-                        }
+        if (requestCode == REQUEST_ENABLE_DT_CONNECT) {
+            if (grantResults.length > 0) {
+                for (int i : grantResults) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(context, "Cannot proceed without bluetooth/location permissions.", Toast.LENGTH_SHORT).show();
+                        break;
+                    } else {
+                        Toast.makeText(context, "Bluetooth/location permission granted.", Toast.LENGTH_SHORT).show();
                     }
                 }
+            }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        NavUtils.navigateUpFromSameTask(this);
     }
 
     @Override

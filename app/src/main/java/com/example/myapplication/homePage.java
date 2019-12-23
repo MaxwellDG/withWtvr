@@ -21,8 +21,8 @@ public class homePage extends AppCompatActivity {
     public static final String TAG = "TAG";
 
     private String username;
-    private TextView createRoomButton;
-    private TextView joinRoomButton;
+    private View createRoomButton;
+    private View joinRoomButton;
     private ImageView needIdeasButton;
     private ImageView profileButton;
     private ImageView menuButton;
@@ -84,12 +84,15 @@ public class homePage extends AppCompatActivity {
         });
     }
 
-    // TODO: The whole "back-stack" and going up and shit and wtvr for everypage //
-
     public void startAnActivity(Class aClass){
         Intent intent = new Intent(this, aClass);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        // do nothing //
     }
 }
 

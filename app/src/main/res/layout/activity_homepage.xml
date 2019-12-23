@@ -1,134 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/homePageCon"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/homePageCon"
-    android:background="@color/colorPrimaryDark"
+    android:background="@drawable/background_gradient"
     tools:context=".homePage">
 
 
     <ImageView
-        android:id="@+id/whiteBlock"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@color/quantum_yellow600" />
-
-    <ImageView
         android:id="@+id/compassButton"
-        android:layout_width="272dp"
-        android:layout_height="249dp"
+        android:layout_width="253dp"
+        android:layout_height="230dp"
         android:scaleType="fitXY"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
-        app:srcCompat="@drawable/compass_buttons" />
+        app:srcCompat="@drawable/ww_compass_clean_white_cropped" />
 
-    <!-- <androidx.appcompat.widget.Toolbar
-        android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="#C81B1A1A"
-        android:elevation="4dp"
-        android:scrollbarAlwaysDrawHorizontalTrack="true"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="WithWtvr"
-        app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
-        app:titleTextColor="@color/ic_launcher_background" />
-        -->
+    <!--TODO: Need ideas button spins periodically and has a faded yellow background for inner circle -->
 
-    <TextView
-        android:id="@+id/textView2"
+    <View
+        android:id="@+id/view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginEnd="64dp"
-        android:text="If you can't decide where to go, pool your ideas and vote"
-
-        android:textAlignment="center"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused"
-        android:textSize="30sp"
+        android:layout_height="0dp"
+        android:background="@color/colorPrimaryDark"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/circle2" />
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/textAnon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="anonymously."
-        android:textColor="@color/quantum_white_100"
-        android:textSize="30dp"
-        app:layout_constraintEnd_toEndOf="@+id/textView2"
-        app:layout_constraintStart_toStartOf="@+id/textView2"
+        android:fontFamily="casual"
+        android:text="pool your ideas and vote anonymously."
+        android:textAlignment="center"
+        android:textColor="@color/quantum_black_100"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
-    <TextView
+    <View
         android:id="@+id/joinRoomButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/textborder"
-        android:text="Join Room"
+        android:layout_width="0dp"
+        android:layout_height="134dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/lightalphagrey"
+        android:gravity="bottom|center"
+        android:textAlignment="center"
         android:textColor="@color/yellowonclick"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.45" />
 
-    <TextView
+    <View
         android:id="@+id/createRoomButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/textborder"
-        android:text="Host Room"
-        android:textColor="@color/yellowonclick"
+        android:layout_width="0dp"
+        android:layout_height="134dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/lightalphagrey"
+        android:gravity="bottom|center"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.45" />
 
     <ImageView
         android:id="@+id/circle3"
         android:layout_width="15dp"
         android:layout_height="38dp"
-        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toStartOf="@+id/textView2"
         app:layout_constraintStart_toStartOf="@+id/circle2"
         app:layout_constraintTop_toBottomOf="@+id/circle2"
-        app:srcCompat="@drawable/ideascirclebackground" />
+        app:srcCompat="@drawable/circle3" />
 
     <ImageView
         android:id="@+id/circle2"
         android:layout_width="26dp"
         android:layout_height="32dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/circle3"
         app:layout_constraintStart_toStartOf="@+id/circle1"
         app:layout_constraintTop_toBottomOf="@+id/circle1"
         app:srcCompat="@drawable/circle2" />
 
     <ImageView
         android:id="@+id/circle1"
-        android:layout_width="38dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/compassButton"
+        android:layout_width="46dp"
+        android:layout_height="41dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/compassButton"
         app:srcCompat="@drawable/circle1" />
 
     <ImageView
@@ -136,11 +115,11 @@
         android:layout_width="40dp"
         android:layout_height="46dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/homeHelpButton"
         app:layout_constraintEnd_toStartOf="@+id/homeHelpButton"
         app:layout_constraintTop_toTopOf="@+id/homeHelpButton"
-        app:srcCompat="@drawable/ic_account_color" />
+        app:srcCompat="@drawable/ic_account_color_yellow" />
 
     <ImageView
         android:id="@+id/homeHelpButton"
@@ -151,5 +130,107 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/question_mark_icon" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="casual"
+        android:text="If you can't decide where to go,"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.56"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/circle3" />
+
+    <ImageView
+        android:id="@+id/imageView12"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/joinRoomButton"
+        app:layout_constraintStart_toStartOf="@+id/joinRoomButton"
+        app:layout_constraintTop_toTopOf="@+id/joinRoomButton"
+        app:srcCompat="@drawable/joinroompeople" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:fontFamily="casual"
+        android:text="Join"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/joinRoomButton"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toBottomOf="@+id/imageView12" />
+
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:fontFamily="casual"
+        android:text="Room"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView21"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/textView21"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="303dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="107dp" />
+
+    <TextView
+        android:id="@+id/textView25"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:fontFamily="casual"
+        android:text="Host"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/textView21"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="@+id/textView21"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView26"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:fontFamily="casual"
+        android:text="Room"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView25"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="@+id/textView25"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageView
+        android:id="@+id/imageView13"
+        android:layout_width="183dp"
+        android:layout_height="86dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/createRoomButton"
+        app:layout_constraintStart_toStartOf="@+id/createRoomButton"
+        app:layout_constraintTop_toTopOf="@+id/createRoomButton"
+        app:srcCompat="@drawable/hostroompicture" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

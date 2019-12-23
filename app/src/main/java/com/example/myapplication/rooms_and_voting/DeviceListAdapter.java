@@ -61,7 +61,6 @@ public class DeviceListAdapter extends RecyclerView.Adapter{
             ((DeviceViewHolder) holder).attemptPairingButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: set a listener on the bluetooth pairing thingi and while it's on the "attempting to connect" part have a swirly happening and make the button GONE //
                     listener.touchedDevice(position);
                 }
             });

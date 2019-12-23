@@ -1,6 +1,7 @@
 package com.example.myapplication.rooms_and_voting;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,15 +28,14 @@ public class ActualVoting extends AppCompatActivity {
 
     public static final String TAG = "TAG";
 
-    private ArrayList<String> allDestinations;
     private ArrayList<String> itemsVoted;
     private ImageView wwLogo;
-    private RecyclerView recyclerView;
     private Context context = this;
     private ProgressBar progressBar;
     private BluetoothDataTransferService bluetoothDataTransferService;
     private boolean isBound;
     private boolean isHost;
+    private VoteCalculations voteCalculations;
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -63,17 +63,11 @@ public class ActualVoting extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_actual_voting);
 
-        /*String roomName = getIntent().getStringExtra("ROOMNAME");
-        TextView theRoomName = findViewById(R.id.actualRoomName);
-        theRoomName.setText(roomName);
-         */
-
         isHost = getIntent().getBooleanExtra("IS_HOST", false);
         TextView actualInstructions = findViewById(R.id.actualInstructions);
         actualInstructions.setText(getString(R.string.profile_number_votes, "3")); // TODO: make this actually grab from userInfo database thing //
-        allDestinations = getIntent().getStringArrayListExtra("ALL_DESTINATIONS");
-        Log.d(TAG, "Sent: " + getIntent().getStringArrayListExtra("ALL_DESTINATIONS"));
-        recyclerView = findViewById(R.id.actualRecycler);
+        ArrayList<String> allDestinations = getIntent().getStringArrayListExtra("ALL_DESTINATIONS");
+        RecyclerView recyclerView = findViewById(R.id.actualRecycler);
         VotingListAdapter votingListAdapter = new VotingListAdapter(allDestinations, this);
         recyclerView.setAdapter(votingListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
@@ -90,15 +84,27 @@ public class ActualVoting extends AppCompatActivity {
             public void onFinish() {
                 itemsVoted = votingListAdapter.getItemsVoted();
                 final StringBuilder alertAnswer = new StringBuilder();
+                voteCalculations = new VoteCalculations();
                 if (isHost) {
-                    bluetoothDataTransferService.addHostsAnswers(itemsVoted);
                     Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
+                    Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            bluetoothDataTransferService.analyzeDataForFinalAnswer();
+                            if (bluetoothDataTransferService.getAreAllAnswersTransferredToHost()) {
+                                voteCalculations.addSubmissions(bluetoothDataTransferService.getAllTheSubmissions());
+                                voteCalculations.addSubmissions(itemsVoted);
+                                String answer = voteCalculations.analyzeDataForFinalAnswer();
+                                Log.d(TAG, "run: Answer is: " + answer);
+                                byte[] answerSend = answer.getBytes(Charset.defaultCharset());
+                                bluetoothDataTransferService.write(answerSend);
+                                bluetoothDataTransferService.setHasFinalAnswerBeenTransferred(true);
+                            } else {
+                                Log.d(TAG, "run: not ready for Final Dialog YET");
+                                handler.postDelayed(this, 1000);
+                            }
                         }
-                    }, 3000);
+                    };
+                    handler.post(runnable);
                 } else {
                     StringBuilder tripleWord = new StringBuilder();
                     for (String word : itemsVoted) {
@@ -113,11 +119,21 @@ public class ActualVoting extends AppCompatActivity {
                 handler2.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        FinalAnswerDialog finalAnswerDialog = new FinalAnswerDialog(bluetoothDataTransferService.getTheFINALANSWER(), context);
-                        finalAnswerDialog.onCreateDialog(null);
-                        finalAnswerDialog.show(getSupportFragmentManager(), null);
+                        String theAnswer;
+                        if (bluetoothDataTransferService.getHasFinalAnswerBeenTransferred()){
+                                if(isHost){
+                                    theAnswer = voteCalculations.getFinalAnswer();
+                                } else {
+                                    theAnswer = bluetoothDataTransferService.getTheFinalAnswer();
+                                }
+                                FinalAnswerDialog finalAnswerDialog = new FinalAnswerDialog(theAnswer, context);
+                                finalAnswerDialog.onCreateDialog(null);
+                                finalAnswerDialog.show(getSupportFragmentManager(), null);
+                        } else {
+                            handler2.postDelayed(this, 1000);
+                        }
                     }
-                }, 5000);
+                }, 2000);
                 progressBar.setVisibility(View.GONE);
                 wwLogo.setVisibility(View.VISIBLE);
             }
@@ -129,8 +145,6 @@ public class ActualVoting extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // TODO: add a check to see if it's bound. Not working well for some reason :S //
-        //TODO: maybe having the unbind as well as the stopservice is causing the weird problem on close? //
         unbindService(serviceConnection);
     }
 
@@ -139,5 +153,11 @@ public class ActualVoting extends AppCompatActivity {
         Intent intent = new Intent(context, BluetoothDataTransferService.class);
         stopService(intent);
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //TODO: disconnect socket with host //
+        NavUtils.navigateUpFromSameTask(this);
     }
 }

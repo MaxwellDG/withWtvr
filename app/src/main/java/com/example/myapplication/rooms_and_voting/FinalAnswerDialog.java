@@ -18,7 +18,7 @@ public class FinalAnswerDialog extends DialogFragment {
     private String answer;
     private Context context;
 
-    public FinalAnswerDialog(String answer, Context context) {
+    FinalAnswerDialog(String answer, Context context) {
         this.answer = answer;
         this.context = context;
     }

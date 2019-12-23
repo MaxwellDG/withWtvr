@@ -161,14 +161,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void run() {
                         materialSearchBar.clearSuggestions();
                     }
-                }, 1000);
+                }, 500);
             }
             @Override
             public void OnItemDeleteListener(int position, View v) {
                 materialSearchBar.getLastSuggestions().remove(position);
             }
         });
-         // TODO: When pressing X delete a suggestion from the list. OR. Somehow maybe just delete the X button? //
 
         Places.initialize(getApplicationContext(), "AIzaSyBkmf2k5A4GgoZ9qc8eSyinEX5yWPTCOww");
         placesClient = Places.createClient(this);

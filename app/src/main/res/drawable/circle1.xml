@@ -5,8 +5,6 @@
 
     <size android:height="5dp"
         android:width="5dp"/>
-    <solid android:color="#40545454"/>
-    <stroke android:color="@color/quantum_black_100"
-        android:width="1px"/>
+    <solid android:color="#CCB826"/>
 
 </shape>

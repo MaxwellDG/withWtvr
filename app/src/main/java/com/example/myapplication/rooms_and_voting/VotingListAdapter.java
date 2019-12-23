@@ -19,7 +19,6 @@ public class VotingListAdapter extends RecyclerView.Adapter {
     private ArrayList<String> optionsList;
     private ArrayList<String> optionsVoted = new ArrayList<>();
     private Context context;
-    public static final String TAG = "TAG";
 
     public VotingListAdapter(ArrayList<String> optionsList, Context context) {
         this.optionsList = optionsList;
@@ -43,11 +42,9 @@ public class VotingListAdapter extends RecyclerView.Adapter {
                 String selectedItem = ((OptionViewHolder) holder).optionText.getText().toString();
                 if (!optionsVoted.contains(selectedItem)){
                     optionsVoted.add(((OptionViewHolder) holder).optionText.getText().toString());
-                    Log.d(TAG, "onClick: Option clicked: " + selectedItem);
                     if (optionsVoted.size() >= 4){
                         optionsVoted.remove(0);
                     }
-                    Log.d(TAG, "onClick: optionsVoted contains: " + optionsVoted.toString());
             } else {
                     optionsVoted.remove(selectedItem);
                 }
@@ -87,7 +84,6 @@ public class VotingListAdapter extends RecyclerView.Adapter {
         }
 
         void onBind(int position, ArrayList<String> optionsList) {
-            Log.d(TAG, "onBind: " + optionsList.get(position));
             if (optionsList.get(position) != null) {
                 optionText.setText(optionsList.get(position));
             }

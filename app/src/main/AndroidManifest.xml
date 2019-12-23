@@ -3,6 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.myapplication">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,9 +19,12 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".rooms_and_voting.CreateDestinations"
+            android:parentActivityName=".homePage"
             android:theme="@style/AppTheme"/>
-        <activity android:name=".rooms_and_voting.VotingLobbyJoiner" />
+        <activity android:name=".rooms_and_voting.VotingLobbyJoiner"
+            android:parentActivityName=".homePage"/>
         <activity android:name=".rooms_and_voting.ActualVoting"
+            android:parentActivityName=".homePage"
             android:theme="@style/AppTheme"/>
         <activity android:name=".the_profile.PickNewAvatar" />
         <activity
@@ -22,7 +32,8 @@
             android:label="@string/title_activity_near_me_map"
             android:parentActivityName=".homePage"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-        <activity android:name=".rooms_and_voting.VotingLobby" />
+        <activity android:name=".rooms_and_voting.VotingLobby"
+            android:parentActivityName=".homePage"/>
         <activity
             android:name=".the_profile.ProfilePage"
             android:parentActivityName=".homePage"
@@ -30,9 +41,11 @@
         <activity android:name=".homePage" />
         <activity
             android:name=".signUp"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,12 +64,4 @@
             android:resource="@array/preloaded_fonts" />
 
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 </manifest>
