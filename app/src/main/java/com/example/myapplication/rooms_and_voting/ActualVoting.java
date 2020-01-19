@@ -9,13 +9,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -26,33 +24,37 @@ import java.util.ArrayList;
 
 public class ActualVoting extends AppCompatActivity {
 
-    public static final String TAG = "TAG";
-
-    private ArrayList<String> itemsVoted;
-    private ImageView wwLogo;
     private Context context = this;
     private ProgressBar progressBar;
     private BluetoothDataTransferService bluetoothDataTransferService;
-    private boolean isBound;
     private boolean isHost;
+
+    private ArrayList<String> itemsVoted;
     private VoteCalculations voteCalculations;
+
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             BluetoothDataTransferService.TheBinder myBinder = (BluetoothDataTransferService.TheBinder) service;
             bluetoothDataTransferService = myBinder.getBluetoothDataTransferService();
-            isBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
+            if (isHost) {
+                ArrayList<BluetoothDataTransferService.SendingBetweenDevices> allConnections = bluetoothDataTransferService.getAllConnections();
+                for (BluetoothDataTransferService.SendingBetweenDevices deviceConnection : allConnections) {
+                    deviceConnection.cancelConnection();
+                }
+            } else {
+                bluetoothDataTransferService.getClientSocketConnection().cancelClientSocket();
+            }
         }
     };
 
-
     @Override
     protected void onStart() {
+        // immediately bindingService //
         super.onStart();
         Intent intent = new Intent(this, BluetoothDataTransferService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -63,18 +65,22 @@ public class ActualVoting extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_actual_voting);
 
+        SharedPreferences prefs = getSharedPreferences("PREFS_FILE", MODE_PRIVATE);
         isHost = getIntent().getBooleanExtra("IS_HOST", false);
+        int maxVotes = prefs.getInt("MAXVOTES", 3);
+        int timerLength = prefs.getInt("TIMERLENGTH", 15);
+        progressBar = findViewById(R.id.actualProgress);
+        progressBar.setMax(timerLength);
+        progressBar.setProgress(timerLength);
         TextView actualInstructions = findViewById(R.id.actualInstructions);
-        actualInstructions.setText(getString(R.string.profile_number_votes, "3")); // TODO: make this actually grab from userInfo database thing //
+        actualInstructions.setText(getString(R.string.profile_number_votes, String.valueOf(maxVotes)));
         ArrayList<String> allDestinations = getIntent().getStringArrayListExtra("ALL_DESTINATIONS");
         RecyclerView recyclerView = findViewById(R.id.actualRecycler);
-        VotingListAdapter votingListAdapter = new VotingListAdapter(allDestinations, this);
+        VotingListAdapter votingListAdapter = new VotingListAdapter(allDestinations, this, maxVotes);
         recyclerView.setAdapter(votingListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
 
-        progressBar = findViewById(R.id.actualProgress);
-        wwLogo = findViewById(R.id.actualLogo);
-        CountDownTimer countDownTimer = new CountDownTimer(10000, 1000) {
+        CountDownTimer countDownTimer = new CountDownTimer((timerLength*1000), 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 progressBar.setProgress(progressBar.getProgress() - 1);
@@ -90,35 +96,29 @@ public class ActualVoting extends AppCompatActivity {
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
+                            // host cycles through testing to see if all votes are submitted, analyzes submissions, then sends out final answer //
                             if (bluetoothDataTransferService.getAreAllAnswersTransferredToHost()) {
                                 voteCalculations.addSubmissions(bluetoothDataTransferService.getAllTheSubmissions());
                                 voteCalculations.addSubmissions(itemsVoted);
                                 String answer = voteCalculations.analyzeDataForFinalAnswer();
-                                Log.d(TAG, "run: Answer is: " + answer);
                                 byte[] answerSend = answer.getBytes(Charset.defaultCharset());
                                 bluetoothDataTransferService.write(answerSend);
-                                bluetoothDataTransferService.setHasFinalAnswerBeenTransferred(true);
+                                bluetoothDataTransferService.setHasFinalAnswerBeenTransferred();
                             } else {
-                                Log.d(TAG, "run: not ready for Final Dialog YET");
                                 handler.postDelayed(this, 1000);
                             }
                         }
                     };
                     handler.post(runnable);
                 } else {
-                    StringBuilder tripleWord = new StringBuilder();
-                    for (String word : itemsVoted) {
-                        word = word + "***";
-                        tripleWord.append(word);
-                    }
-                    tripleWord.delete(tripleWord.length() - 3, tripleWord.length());
-                    byte[] bytes = tripleWord.toString().getBytes(Charset.defaultCharset());
-                    bluetoothDataTransferService.write(bytes);
+                    // send submissions to host to analyze //
+                    bluetoothDataTransferService.write(formatSubmissionsForHost());
                 }
                 Handler handler2 = new Handler();
                 handler2.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        // the pop-up window with the final answer //
                         String theAnswer;
                         if (bluetoothDataTransferService.getHasFinalAnswerBeenTransferred()){
                                 if(isHost){
@@ -134,30 +134,46 @@ public class ActualVoting extends AppCompatActivity {
                         }
                     }
                 }, 2000);
-                progressBar.setVisibility(View.GONE);
-                wwLogo.setVisibility(View.VISIBLE);
             }
-
         };
         countDownTimer.start();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(serviceConnection);
+    public byte[] formatSubmissionsForHost(){
+        StringBuilder allSubmissionsTogether = new StringBuilder();
+        for (String word : itemsVoted) {
+            word = word + "***";
+            allSubmissionsTogether.append(word);
+        }
+        if(itemsVoted.size() > 1) {
+            allSubmissionsTogether.delete(allSubmissionsTogether.length() - 3, allSubmissionsTogether.length());
+        }
+        return allSubmissionsTogether.toString().getBytes(Charset.defaultCharset());
     }
 
     @Override
     protected void onDestroy() {
-        Intent intent = new Intent(context, BluetoothDataTransferService.class);
-        stopService(intent);
+        shutDownConnections();
         super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
-        //TODO: disconnect socket with host //
+        shutDownConnections();
         NavUtils.navigateUpFromSameTask(this);
+        overridePendingTransition(R.anim.trans_in_left, R.anim.trans_out_right);
+        finish();
+    }
+
+    public void shutDownConnections() {
+        if(isHost) {
+            ArrayList<BluetoothDataTransferService.SendingBetweenDevices> doop = bluetoothDataTransferService.getAllConnections();
+            for (BluetoothDataTransferService.SendingBetweenDevices connection : doop) {
+                connection.cancelConnection();
+            }
+        } else {
+            bluetoothDataTransferService.getClientSocketConnection().cancelClientSocket();
+        }
+        unbindService(serviceConnection);
     }
 }

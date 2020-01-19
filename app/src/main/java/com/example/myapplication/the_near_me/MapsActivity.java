@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -38,7 +37,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -79,10 +77,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient fusedLocationProviderClient;
     private OkHttpClient okHttpClient;
 
-    private boolean isLocationEnabled;
+    private boolean isLocationEnabled = false;
     private String username;
 
-    private ImageView returnToLocationButton;
     private ImageView giveMeIdeasButton;
     private LatLng currentLocation;
     private LatLng selectedLocation;
@@ -186,7 +183,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             enableMyLocation();
         }
 
-        returnToLocationButton = findViewById(R.id.returnToMyLocationButton);
+        ImageView returnToLocationButton = findViewById(R.id.returnToMyLocationButton);
         returnToLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -213,7 +210,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         switch (item.getItemId()) {
                             case R.id.destinationRestaurant:
                                 createSuggestMarkers("restaurant", someCoords);
-                                Log.d(TAG, "onMenuItemClick: Restaurant clicked");
                                 break;
                             case R.id.destinationPark:
                                 createSuggestMarkers("park", someCoords);
@@ -270,15 +266,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         for (int i = 0; i < predictionList.size(); i++) {
                             AutocompletePrediction prediction = predictionList.get(i);
                             suggestionsList.add(prediction.getFullText(null).toString());
-                            Log.d(TAG, "onComplete: " + prediction.toString());
                         }
                         materialSearchBar.updateLastSuggestions(suggestionsList);
                         if (!materialSearchBar.isSuggestionsVisible()){
                             materialSearchBar.showSuggestionsList();
                         }
                     }
-                } else {
-                    Log.i("mytag", "prediction fetching task unsuccessful: " + task.getException().toString());
                 }
             }
         });
@@ -311,7 +304,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Log.d(TAG, "onFailure: OkHttp didn't work.");
                     e.printStackTrace();
                 }
 
@@ -320,16 +312,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     try {
                         String jsonData = response.body().string();
                         if (response.isSuccessful()) {
-                            Log.d(TAG, "onResponse: Okhttp Call was successful.");
                             try {
                                 NearbyPlace[] nearbyPlaces = allTheNearbyPlaces(jsonData);
                                 addSuggestMarkers(nearbyPlaces);
                             } catch (JSONException e) {
-                                Log.d(TAG, "onResponse: JSONEXCEPTION " + e.getMessage());
+                                e.printStackTrace();
                             }
                         }
                     } catch (NullPointerException e) {
-                        Log.d(TAG, "onResponse: NULLPOINTEREXCEPTION " + e.getMessage());
+                       e.printStackTrace();
                     }
                 }
             });
@@ -364,7 +355,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void run() {
                     mMap.clear();
                     for (NearbyPlace nearbyPlace : nearbyPlaces) {
-                        Log.d(TAG, "addSuggestMarkers: We made it here at least");
                         LatLng itsCoordinates = new LatLng(Double.parseDouble(nearbyPlace.getLat()), Double.parseDouble(nearbyPlace.getLng()));
                         mMap.addMarker(new MarkerOptions().position(itsCoordinates).title(nearbyPlace.getName()));
                     }
@@ -374,11 +364,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void updateLocationUI(){
         if (mMap == null) {
-            Log.d(TAG, "updateLocationUI: mMap is null");
             return;
         }
         try {
-            Log.d(TAG, "updateLocationUI: called and tried.");
             final Task userLocation = fusedLocationProviderClient.getLastLocation();
             userLocation.addOnCompleteListener(new OnCompleteListener() {
                 @Override
@@ -386,13 +374,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (userLocation.isSuccessful()){
                         mMap.clear();
                         Location lastKnownLocation = (Location) userLocation.getResult();
-                        assert lastKnownLocation != null;
-                        currentLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-                        moveTheCamera(currentLocation, STANDARD_ZOOM);
+                        if(lastKnownLocation != null) {
+                            currentLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                            moveTheCamera(currentLocation, STANDARD_ZOOM);
+                            mMap.setMyLocationEnabled(isLocationEnabled);
+                        } else {
+                            isLocationEnabled = false;
+                        }
+                    } else {
+                        isLocationEnabled = false;
                     }
                 }
             });
-            mMap.setMyLocationEnabled(isLocationEnabled);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
         } catch (SecurityException e){
             e.getMessage();
@@ -466,7 +459,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             updateDatabaseGPS(true);
                             updateLocationUI();
                         } catch (RuntimeException e){
-                            Log.d(TAG, "onRequestPermissionsResult: " + e.toString());
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -489,6 +482,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.gobackMenu:
                 Intent intent = new Intent(this, homePage.class);
+                intent.putExtra("USERNAME", username);
                 finish();
                 startActivity(intent);
                 break;
@@ -501,4 +495,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }

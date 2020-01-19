@@ -23,7 +23,6 @@ public class DeviceListAdapter extends RecyclerView.Adapter{
     private Context context;
     private ArrayList<BluetoothDevice> deviceArrayList;
     private final onDeviceClickedListener listener;
-    private static final String TAG = "TAG";
     private int row_index = -1;
 
     DeviceListAdapter(Context context, ArrayList<BluetoothDevice> deviceArrayList, onDeviceClickedListener listener) {

@@ -7,7 +7,7 @@
         android:title="Help" />
     <item
         android:id="@+id/lobbyMenuDeviceName"
-        android:title="What's my device named?" />
+        android:title="Set my device name" />
     <item
         android:id="@+id/lobbyMenuExit"
         android:title="Exit room" />

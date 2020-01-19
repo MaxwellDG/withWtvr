@@ -46,26 +46,28 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/actualLogo"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/actualLinear"
-        app:srcCompat="@drawable/w_icon" />
-
     <ProgressBar
         android:id="@+id/actualProgress"
-        style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="?android:progressBarStyleHorizontal"
+        android:progressDrawable="@drawable/progressbar_ring"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:max="10"
         android:progress="10"
+        android:visibility="visible"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/actualProgress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/actualLinear"
+        app:srcCompat="@drawable/wwicon_white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

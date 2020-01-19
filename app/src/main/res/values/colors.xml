@@ -5,4 +5,5 @@
     <color name="colorAccent">#CCB826</color>
     <color name="gradient_light">#474747</color>
     <color name="lightalphagrey">#1ABFBFBF</color>
+    <color name="background_Grey_status">#AFB8B4B4</color>
 </resources>

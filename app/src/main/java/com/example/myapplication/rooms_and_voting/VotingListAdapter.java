@@ -19,10 +19,12 @@ public class VotingListAdapter extends RecyclerView.Adapter {
     private ArrayList<String> optionsList;
     private ArrayList<String> optionsVoted = new ArrayList<>();
     private Context context;
+    private int maxVotes;
 
-    public VotingListAdapter(ArrayList<String> optionsList, Context context) {
+    public VotingListAdapter(ArrayList<String> optionsList, Context context, int maxVotes) {
         this.optionsList = optionsList;
         this.context = context;
+        this.maxVotes = maxVotes;
     }
 
     @NonNull
@@ -42,7 +44,7 @@ public class VotingListAdapter extends RecyclerView.Adapter {
                 String selectedItem = ((OptionViewHolder) holder).optionText.getText().toString();
                 if (!optionsVoted.contains(selectedItem)){
                     optionsVoted.add(((OptionViewHolder) holder).optionText.getText().toString());
-                    if (optionsVoted.size() >= 4){
+                    if (optionsVoted.size() > (maxVotes)){
                         optionsVoted.remove(0);
                     }
             } else {
@@ -51,7 +53,7 @@ public class VotingListAdapter extends RecyclerView.Adapter {
                 notifyDataSetChanged();
             }
         });
-
+        // setting the appropriate highlights for options touched / not touched //
         if (optionsVoted.contains(((OptionViewHolder) holder).optionText.getText().toString())) {
             ((OptionViewHolder) holder).optionLayout.setBackgroundColor(Color.parseColor("#FFCCB826"));
             ((OptionViewHolder) holder).optionText.setTextColor(Color.WHITE);
@@ -75,7 +77,6 @@ public class VotingListAdapter extends RecyclerView.Adapter {
 
         TextView optionText;
         LinearLayout optionLayout;
-        public static final String TAG = "TAG";
 
         OptionViewHolder(@NonNull View itemView) {
             super(itemView);

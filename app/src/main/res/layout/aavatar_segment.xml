@@ -12,18 +12,18 @@
         android:layout_height="match_parent"
         app:cardBackgroundColor="@color/common_google_signin_btn_text_dark_default">
 
-        <CheckBox
-            android:id="@+id/aAvatarCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:background="@color/white" />
-
         <ImageView
             android:id="@+id/aAvatarImage"
             android:layout_width="match_parent"
             android:layout_height="128dp"
             android:layout_margin="5dp"
             app:srcCompat="@drawable/agiantbaby" />
+
+        <CheckBox
+            android:id="@+id/aAvatarCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:background="@color/white" />
     </androidx.cardview.widget.CardView>
 </LinearLayout>

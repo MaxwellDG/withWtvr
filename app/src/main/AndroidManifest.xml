@@ -45,7 +45,6 @@
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="adjustResize"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -6,14 +6,8 @@ public class NearbyPlace {
     private String lat;
     private String lng;
 
-    public NearbyPlace(){
+    NearbyPlace(){
 
-    }
-
-    public NearbyPlace(String name, String lat, String lng) {
-        this.name = name;
-        this.lat = lat;
-        this.lng = lng;
     }
 
     public String getName() {
@@ -24,19 +18,19 @@ public class NearbyPlace {
         this.name = name;
     }
 
-    public String getLat() {
+    String getLat() {
         return lat;
     }
 
-    public void setLat(String lat) {
+    void setLat(String lat) {
         this.lat = lat;
     }
 
-    public String getLng() {
+    String getLng() {
         return lng;
     }
 
-    public void setLng(String lng) {
+    void setLng(String lng) {
         this.lng = lng;
     }
 }

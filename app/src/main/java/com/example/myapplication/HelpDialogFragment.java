@@ -12,7 +12,10 @@ import androidx.fragment.app.DialogFragment;
 
 public class HelpDialogFragment extends DialogFragment {
 
-    public HelpDialogFragment() {
+    private int requestCode;
+
+    public HelpDialogFragment(int requestCode) {
+        this.requestCode = requestCode;
     }
 
     @NonNull
@@ -20,8 +23,13 @@ public class HelpDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        builder.setView(inflater.inflate(R.layout.homepage_information_dialog, null))
-                .setTitle("Information:")
+        if(requestCode == 1){
+            builder.setView(inflater.inflate(R.layout.dialog_homepage_info, null));
+        } else {
+            builder.setView(inflater.inflate(R.layout.dialog_voting_lobby, null));
+        }
+
+        builder.setTitle("Information:")
                 .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

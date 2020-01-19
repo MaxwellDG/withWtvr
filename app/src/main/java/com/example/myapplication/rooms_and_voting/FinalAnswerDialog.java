@@ -1,5 +1,6 @@
 package com.example.myapplication.rooms_and_voting;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -34,6 +35,7 @@ public class FinalAnswerDialog extends DialogFragment {
                 dismiss();
                 Intent intent = new Intent(context, homePage.class);
                 startActivity(intent);
+                ((Activity) context).finish();
             }})
                 .setMessage(answer);
         return builder.create();

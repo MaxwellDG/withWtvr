@@ -26,7 +26,6 @@ public class PickNewAvatar extends AppCompatActivity {
     private AvatarAdapter avatarAdapter;
     @SuppressLint("UseSparseArrays")
     private int whichAvatarSelected;
-    public static final String TAG = "TAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +47,6 @@ public class PickNewAvatar extends AppCompatActivity {
 
         Button selectAvatarButton = findViewById(R.id.selectAvatarButton);
         selectAvatarButton.setOnClickListener(v ->{
-            Log.d(TAG, "onCreate: Listener activated in PICKNEWAVATAR");
            Intent intent = new Intent(context, ProfilePage.class);
            intent.putExtra("AVATAR_SELECTED", (whichAvatarSelected + 1));
            setResult(RESULT_OK, intent);

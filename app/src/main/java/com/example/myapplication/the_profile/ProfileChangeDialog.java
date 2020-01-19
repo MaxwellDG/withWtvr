@@ -25,7 +25,7 @@ public class ProfileChangeDialog extends DialogFragment {
     private static final int DIALOG_INCORRECT_INITIAL = 2;
     private static final int DIALOG_INCORRECT_PAIRING = 3;
     private static final int DIALOG_CANCELLED = 4;
-    private static final String TAG = "TAG";
+    public static final int DIALOG_INCORRECT_LIMIT = 5;
 
     private String previousInfo;
     private Context context;
@@ -34,6 +34,7 @@ public class ProfileChangeDialog extends DialogFragment {
     private EditText newInput;
     private EditText newInput2;
     private int fieldChangeCode;
+    private Runnable runnable;
 
     private ProfileChangeDialogListener listener;
 
@@ -47,7 +48,6 @@ public class ProfileChangeDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
         AlertDialog builder = new AlertDialog.Builder(getActivity())
                 .setMessage("Complete fields below.")
                 .setTitle("Change profile info: ")
@@ -55,95 +55,110 @@ public class ProfileChangeDialog extends DialogFragment {
                 .setPositiveButton("Change info", null)
                 .setNegativeButton("Cancel", null)
                 .create();
+                builder.setView(setViewAndHints(fieldChangeCode));
 
-        if (fieldChangeCode == 1) {
-            builder.setView(inflater.inflate(R.layout.profile_change_dialog_password, null));
-        } else if (fieldChangeCode == 2){
-            builder.setView(inflater.inflate(R.layout.profile_change_dialog_email, null));
-        }
         builder.setOnShowListener(new DialogInterface.OnShowListener() {
-
             @Override
             public void onShow(final DialogInterface dialog) {
                 Button button2 = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
                 Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
 
+                runnable = () -> {
+                    Database database = Database.getWithWtvrDatabase(context);
+                    switch (fieldChangeCode) {
+                        case 1:
+                            database.getDAO_UserInfo().updatePassword(newInput.getText().toString(), name);
+                            break;
+                        case 2:
+                            database.getDAO_UserInfo().updateEmail(newInput.getText().toString(), name);
+                            break;
+                        case 3:
+                            database.getDAO_UserInfo().updateMaxDestinations(newInput.getText().toString(), name);
+                            break;
+                        case 4:
+                            database.getDAO_UserInfo().updateMaxVotes(newInput.getText().toString(), name);
+                            break;
+                        case 5:
+                            database.getDAO_UserInfo().updateTimerLength(newInput.getText().toString(), name);
+                            break;
+                    }
+                };
+
+                button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.d(TAG, "onClick: You clicked the positive button");
-
-                        if (fieldChangeCode == 1) {
-                            previousPassConfirm = getDialog().findViewById(R.id.dialogRoomName);
-                            newInput = getDialog().findViewById(R.id.dialogRoomPass);
-                            newInput2 = getDialog().findViewById(R.id.dialogChangeNewEmail2);
-                        } else if (fieldChangeCode == 2){
-                            newInput = getDialog().findViewById(R.id.dialogRoomPass);
-                            newInput2 = getDialog().findViewById(R.id.dialogChangeNewEmail2);
-
-                            Log.d(TAG, "onClick: PreNull");
-                            previousPassConfirm = null;
-                            Log.d(TAG, "onClick: PostNull");
-                        }
-
-                        Runnable runnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                Log.d(TAG, "run: It's running... " + newInput.getText().toString());
-                                Database database = Database.getWithWtvrDatabase(context);
-                                switch (fieldChangeCode) {
-                                    case 1:
-                                        database.getDAO_UserInfo().updatePassword(newInput.getText().toString(), name);
-                                        break;
-                                    case 2:
-                                        database.getDAO_UserInfo().updateEmail(newInput.getText().toString(), name);
-                                        break;
-                                }
-                            }
-                        };
-
-                        if (previousPassConfirm == null){
-                            if (!newInput.getText().toString().equals(newInput2.getText().toString())){
-                                incorrectNewInputs();
-                            } else {
-                                switch (fieldChangeCode){
-                                    case 2:
-                                        showToast(DIALOG_SUCCESS);
-                                        Log.d(TAG, "onClick: Correct info");
-                                        new Thread(runnable).start();
-                                        listener.applyTextChange(newInput.getText().toString(), 2);
-                                        break;
-                                    case 3:
-                                        // changing display name will go here later //
-                                        break;
-                                }
-                                dialog.dismiss();
-                            }
-                        } else {
-                            if (newInput.getText().toString().equals(newInput2.getText().toString()) &&
-                                    previousInfo.equals(previousPassConfirm.getText().toString())) {
-                                showToast(DIALOG_SUCCESS);
-                                Log.d(TAG, "onClick: Correct info");
-                                new Thread(runnable).start();
-                                listener.applyTextChange(newInput.getText().toString(), 1);
-                                Log.d(TAG, "run: Listener has been touched.");
-                                dialog.dismiss();
+                        newInput = getDialog().findViewById(R.id.dialogRoomFirstField);
+                        int newInt = 0;
+                        switch(fieldChangeCode) {
+                            case 1:
+                                previousPassConfirm = getDialog().findViewById(R.id.deviceNewName);
+                                newInput2 = getDialog().findViewById(R.id.dialogChangeSecondField);
+                                if (newInput.getText().toString().equals(newInput2.getText().toString()) &&
+                                        previousInfo.equals(previousPassConfirm.getText().toString())) {
+                                    showToast(DIALOG_SUCCESS);
+                                    new Thread(runnable).start();
+                                    listener.applyTextChange(newInput.getText().toString(), fieldChangeCode);
+                                    dialog.dismiss();
+                                    break;
                                 } else if (!previousInfo.equals(previousPassConfirm.getText().toString())) {
-                                    Log.d(TAG, "onClick: Incorrect previous.");
                                     newInput.setText("");
                                     newInput2.setText("");
                                     previousPassConfirm.setText("");
                                     showToast(DIALOG_INCORRECT_INITIAL);
+                                    break;
                                 } else {
                                     incorrectNewInputs();
+                                    break;
                                 }
+                            case 2:
+                                newInput2 = getDialog().findViewById(R.id.dialogChangeSecondField);
+                                if (!newInput.getText().toString().equals(newInput2.getText().toString())){
+                                incorrectNewInputs();
+                                break;
+                            } else {
+                                    showToast(DIALOG_SUCCESS);
+                                    new Thread(runnable).start();
+                                    listener.applyTextChange(newInput.getText().toString(), fieldChangeCode);
+                                    dialog.dismiss();
+                                    break;
+                                }
+                            case 3:
+                                try {
+                                    newInt = Integer.parseInt(newInput.getText().toString());
+                                } catch (IllegalArgumentException e){
+                                    showToast(DIALOG_INCORRECT_LIMIT);
+                                    incorrectNewInputs();
+                                    break;
+                                }
+                                responseToInput((newInt >= 2 && newInt <= 10), getDialog());
+                                break;
+                            case 4:
+                                try {
+                                    newInt = Integer.parseInt(newInput.getText().toString());
+                                } catch (IllegalArgumentException e){
+                                    showToast(DIALOG_INCORRECT_LIMIT);
+                                    incorrectNewInputs();
+                                    break;
+                                }
+                                responseToInput((newInt >= 1 && newInt <= 5), getDialog());
+                                break;
+                            case 5:
+                                try {
+                                    newInt = Integer.parseInt(newInput.getText().toString());
+                                } catch (IllegalArgumentException e){
+                                    showToast(DIALOG_INCORRECT_LIMIT);
+                                    incorrectNewInputs();
+                                    break;
+                                }
+                                responseToInput((newInt >= 5 && newInt <= 30), getDialog());
+                                break;
                         }
                     }
                 });
+
                 button2.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "onClick: YOu clicked the negative button.");
                         showToast(DIALOG_CANCELLED);
                         dialog.dismiss();
                     }
@@ -155,9 +170,46 @@ public class ProfileChangeDialog extends DialogFragment {
 
     private void incorrectNewInputs(){
         newInput.setText("");
-        newInput2.setText("");
-        Log.d(TAG, "onClick: else (incorrect new inputs)");
-        showToast(DIALOG_INCORRECT_PAIRING);
+        try{
+            newInput2.setText("");
+        } catch(NullPointerException e){
+            e.printStackTrace();
+        }
+        showToast(DIALOG_INCORRECT_LIMIT);
+    }
+
+    private void responseToInput(boolean bool, Dialog dialog){
+        if(bool){
+            new Thread(runnable).start();
+            listener.applyTextChange(newInput.getText().toString(), fieldChangeCode);
+            showToast(DIALOG_SUCCESS);
+            dialog.dismiss();
+        } else {
+            showToast(DIALOG_INCORRECT_LIMIT);
+            incorrectNewInputs();
+        }
+    }
+
+    private View setViewAndHints(int fieldCode){
+        final LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View theView = inflater.inflate(R.layout.dialog_profile_change_general, null);
+        EditText editText = theView.findViewById(R.id.dialogRoomFirstField);
+        switch (fieldCode){
+            case 1:
+                return inflater.inflate(R.layout.dialog_profile_change_password, null);
+            case 2:
+                return inflater.inflate(R.layout.dialog_profile_change_email, null);
+            case 4:
+                editText.setHint("Max votes per person: <=5");
+                return theView;
+            case 5:
+                editText.setHint("Length of voting time: <=30");
+                return theView;
+            default:
+                editText.setHint("Max destination options: <=11");
+                // fieldCode 3 //
+                return theView;
+        }
     }
 
     private void showToast(int requestCode) {
@@ -173,6 +225,10 @@ public class ProfileChangeDialog extends DialogFragment {
                 break;
             case (DIALOG_CANCELLED):
                 Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show();
+                break;
+            case (DIALOG_INCORRECT_LIMIT):
+                Toast.makeText(context, "Incorrect input.", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
@@ -180,10 +236,8 @@ public class ProfileChangeDialog extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            Log.d(TAG, "onAttach: Listener attached. With context: " + context.toString());
             listener = (ProfileChangeDialogListener) context;
         } catch (ClassCastException e){
-            Log.d(TAG, "onAttach: Listener NOT attached.");
             e.printStackTrace();
         }
     }

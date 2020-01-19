@@ -14,14 +14,20 @@ public class UserInfo {
     private String email;
     private int avatarId;
     private boolean GPS;
+    private int maxDestinations;
+    private int maxVotes;
+    private int timerLength;
 
 
-    public UserInfo(@NonNull String username, String password, String email, int avatarId, boolean GPS) {
+    public UserInfo(@NonNull String username, String password, String email, int avatarId, boolean GPS, int maxDestinations, int maxVotes, int timerLength) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.avatarId = avatarId;
         this.GPS = GPS;
+        this.maxDestinations = maxDestinations;
+        this.maxVotes = maxVotes;
+        this.timerLength = timerLength;
     }
 
     public String getUsername() {
@@ -62,5 +68,29 @@ public class UserInfo {
 
     public void setGPS(boolean GPS) {
         this.GPS = GPS;
+    }
+
+    public int getMaxDestinations() {
+        return maxDestinations;
+    }
+
+    public void setMaxDestinations(int maxDestinations) {
+        this.maxDestinations = maxDestinations;
+    }
+
+    public int getMaxVotes() {
+        return maxVotes;
+    }
+
+    public void setMaxVotes(int maxVotes) {
+        this.maxVotes = maxVotes;
+    }
+
+    public int getTimerLength() {
+        return timerLength;
+    }
+
+    public void setTimerLength(int timerLength) {
+        this.timerLength = timerLength;
     }
 }

@@ -18,9 +18,15 @@ import com.example.myapplication.rooms_and_voting.VotingLobbyJoiner;
 
 public class CreateRoomDialog extends DialogFragment {
 
+
+
+    // this class isn't used but might be incorporated later when lobbys will have their own identifiers //
+
+
+
+
     public static final String ROOMNAME = "ROOMNAME";
     public static final String ROOMPASS = "ROOMPASS";
-    public static final String TAG = "TAG";
 
     private Context context;
     private int fieldCode;
@@ -35,16 +41,16 @@ public class CreateRoomDialog extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         final LayoutInflater inflater = requireActivity().getLayoutInflater();
         final AlertDialog.Builder theDialog = new AlertDialog.Builder(getActivity())
-                .setMessage("Complete the fields below: ").setView(inflater.inflate(R.layout.lobby_dialog, null))
+                .setMessage("Complete the fields below: ").setView(inflater.inflate(R.layout.dialog_homepage_room_creation, null))
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                            EditText editRoom = getDialog().findViewById(R.id.dialogRoomName);
+                            EditText editRoom = getDialog().findViewById(R.id.deviceNewName);
                             String roomName = editRoom.getText().toString();
                             if (roomName.isEmpty()){
                                 roomName = "WithWtvr";
                             }
-                            EditText editPass = getDialog().findViewById(R.id.dialogRoomPass);
+                            EditText editPass = getDialog().findViewById(R.id.dialogRoomFirstField);
                             String roomPass = editRoom.getText().toString();
                             startALobby(roomName, roomPass);
                     }

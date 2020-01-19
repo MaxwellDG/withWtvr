@@ -45,7 +45,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
         android:orientation="vertical"
@@ -53,7 +53,7 @@
         app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView3">
+        app:layout_constraintTop_toBottomOf="@+id/cardView6">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/hostRecyclerAllDevices"
@@ -93,42 +93,85 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView6"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/background_Grey_status"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView3">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="Your Device Name:"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/hostDeviceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="4dp"
+            android:text="TextView" />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cardView3"
         android:layout_width="0dp"
         android:layout_height="100dp"
-        android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@color/colorAccent"
-        app:cardElevation="5dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView2">
 
         <ImageView
             android:id="@+id/createConnectionButton"
-            android:layout_width="150dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center|right"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/hostRefreshList"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/allow_connect_buttons" />
 
         <ImageView
             android:id="@+id/hostRefreshList"
             android:layout_width="wrap_content"
-            android:layout_height="55dp"
+            android:layout_height="0dp"
             android:layout_gravity="center|center_horizontal"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.511"
             app:srcCompat="@drawable/allow_refresh_buttons" />
 
         <ImageView
             android:id="@+id/allowOthersButton"
-            android:layout_width="150dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center|left"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/hostRefreshList"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/allow_search_buttons" />
 
-    </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/progressCard"

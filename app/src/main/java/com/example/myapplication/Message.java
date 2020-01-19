@@ -7,6 +7,11 @@ import androidx.room.PrimaryKey;
 @androidx.room.Entity
 public class Message {
 
+
+    // class isn't used yet but will be added when messaging services are added //
+
+
+
     @PrimaryKey
     private int messageID;
     private String User1;

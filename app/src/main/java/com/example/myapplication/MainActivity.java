@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private String passEntered;
     private Context context = this;
 
-    private UserInfo loginAccount;
     private Handler mainHandler = new Handler();
 
     @Override
@@ -115,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             UserInfo loginAttempt = database.getDAO_UserInfo().loginAttempt(nameEntered, passwordEntered);
-            loginAccount = loginAttempt;
             if (loginAttempt != null) {
                 startWithWtvr();
                 finish();

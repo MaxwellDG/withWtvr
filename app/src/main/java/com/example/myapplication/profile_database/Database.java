@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase;
 import com.example.myapplication.Message;
 import com.example.myapplication.UserInfo;
 
-@androidx.room.Database(entities = {UserInfo.class, Message.class}, version = 1)
+@androidx.room.Database(entities = {UserInfo.class, Message.class}, version = 2)
 
 public abstract class Database extends RoomDatabase {
 

@@ -6,7 +6,6 @@ import android.os.Message;
 
 public class TheHandler extends Handler {
 
-    private static final String TAG = "TAG";
     private AddToListListener listener;
 
     public TheHandler(Context context){

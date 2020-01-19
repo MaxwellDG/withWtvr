@@ -1,6 +1,5 @@
 package com.example.myapplication;
 
-import android.app.Activity;
 import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,8 +18,6 @@ import android.widget.Toast;
 import com.example.myapplication.profile_database.Database;
 
 public class signUp extends AppCompatActivity{
-
-    public static final int REQUEST_CODE_SIGNUP = 1001;
 
     private EditText userText;
     private EditText passText;
@@ -55,7 +52,7 @@ public class signUp extends AppCompatActivity{
                 if (passText.getText().toString().equals(passText2.getText().toString())) {
                     UserInfo theirProfileInfo = new UserInfo(userText.getText().toString(),
                             passText.getText().toString(), emailText.getText().toString(),
-                            1, false);
+                            7, false, 10, 2, 15);
 
                     Database database = Database.getWithWtvrDatabase(getApplicationContext());
 
@@ -86,20 +83,16 @@ public class signUp extends AppCompatActivity{
 
         private Database database;
         private UserInfo userInfo;
-        private String TAG = "TAG";
 
-        public RunnableInput(UserInfo userInfo, Database database) {
+        RunnableInput(UserInfo userInfo, Database database) {
             this.database = database;
             this.userInfo = userInfo;
         }
 
         @Override
         public void run() {
-            // TODO: DELETE THE LINE BELOW AFTER TESTING!!! //
             database.clearAllTables();
-            database.getDAO_UserInfo().insertUserInfo(this.userInfo);
-            UserInfo userinfo = database.getDAO_UserInfo().profileUpload(userText.getText().toString());
-            Log.d(TAG, "run: " + userinfo.getAvatarId());
+            database.getDAO_UserInfo().insertUserInfo(this.userInfo);;
         }
     }
 }

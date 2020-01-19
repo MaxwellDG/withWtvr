@@ -42,4 +42,13 @@ public interface DAO_UserInfo {
 
     @Query("UPDATE UserInfo SET email=:emailInput WHERE username=:name")
         void updateEmail(String emailInput, String name);
+
+    @Query("UPDATE UserInfo SET maxDestinations=:maxDests WHERE username=:name")
+    void updateMaxDestinations(String maxDests, String name);
+
+    @Query("UPDATE UserInfo SET maxVotes=:maxNoVotes WHERE username=:name")
+    void updateMaxVotes(String maxNoVotes, String name);
+
+    @Query("UPDATE UserInfo SET timerLength=:time WHERE username=:name")
+    void updateTimerLength(String time, String name);
 }

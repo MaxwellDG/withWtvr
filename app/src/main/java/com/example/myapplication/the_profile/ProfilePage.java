@@ -32,8 +32,8 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
 
     public static final int NEW_AVATAR_REQUEST = 1002;
     public static final int LOCATION_PERMISSIONS_REQUEST_CODE = 9001;
+    public static final String TAG = "TAG";
 
-    private static final String TAG = "TAG";
     private String username;
     private String password;
     private String email;
@@ -45,13 +45,13 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
     private TextView profileTheirEmail;
     private TextView profileAccountName;
     private Switch profileGPS;
-    private Switch profileTheme;
-    private Switch profileInvitesAllowed;
     private ImageView profileAvatar;
     private TextView profileAvatarName;
-    private ImageView profileChangePassword;
-    private ImageView profileChangeEmail;
     private UserInfo userInfo;
+
+    private TextView maxDestinations;
+    private TextView maxVotes;
+    private TextView timerLength;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,17 +63,22 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
         this.profileTheirEmail = findViewById(R.id.profileTheirEmail);
         this.profileAccountName = findViewById(R.id.profileAccountName);
         this.profileGPS = findViewById(R.id.switchGPS);
-        this.profileTheme = findViewById(R.id.switchTheme);
-        this.profileInvitesAllowed = findViewById(R.id.switchInvites);
+        Switch profileTheme = findViewById(R.id.switchTheme);
+        Switch profileInvitesAllowed = findViewById(R.id.switchInvites);
         this.profileAvatar = findViewById(R.id.theirAvatarPhoto);
         this.profileAvatarName = findViewById(R.id.theirAvatarName);
-        this.profileChangePassword = findViewById(R.id.profileChangePassword);
-        this.profileChangeEmail = findViewById(R.id.profileChangeEmail);
+        ImageView profileChangePassword = findViewById(R.id.profileChangePassword);
+        ImageView profileChangeEmail = findViewById(R.id.profileChangeEmail);
+        ImageView profileChangeMaxDestinations = findViewById(R.id.profileChangeDestinations);
+        ImageView profileChangeMaxVotes = findViewById(R.id.profileChangeMaxVotes);
+        ImageView profileChangeTimerLength = findViewById(R.id.profileChangeTimerLength);
+        this.maxDestinations = findViewById(R.id.yourDestinationsHere);
+        this.maxVotes = findViewById(R.id.yourVotesNoHere);
+        this.timerLength = findViewById(R.id.yourLengthHere);
 
         this.username = getIntent().getStringExtra("USERNAME");
+        Log.d(TAG, "onCreate: userName is: " + this.username);
         this.database = Database.getWithWtvrDatabase(getApplicationContext());
-
-
 
         Runnable runnable = new Runnable() {
             @Override
@@ -95,6 +100,10 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
                             AvatarSelector avatarSelector = new AvatarSelector(userInfo.getAvatarId());
                             profileAvatar.setImageResource(avatarSelector.getAvatarPhoto());
                             profileAvatarName.setText(avatarSelector.getAvatarName());
+
+                            maxDestinations.setText(String.valueOf(userInfo.getMaxDestinations()));
+                            maxVotes.setText(String.valueOf(userInfo.getMaxVotes()));
+                            timerLength.setText(String.valueOf(userInfo.getTimerLength()));
                         }
                     }
                 });
@@ -103,8 +112,25 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
         new Thread(runnable).start();
 
 
+        profileAvatar.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfilePage.this, PickNewAvatar.class);
+            startActivityForResult(intent, NEW_AVATAR_REQUEST);
+        });
 
-        profileChangePassword.setOnClickListener(new View.OnClickListener() {
+         profileGPS.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 if (profileGPS.isChecked()){
+                     String[] permissionsList = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+                     ActivityCompat.requestPermissions((Activity) context, permissionsList, LOCATION_PERMISSIONS_REQUEST_CODE);
+                 } else {
+                     Toast.makeText(context, "Must turn off in phone settings.", Toast.LENGTH_SHORT).show();
+                     profileGPS.setChecked(true);
+                 }
+             }
+         });
+
+         profileChangePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ProfileChangeDialog profileChangeDialog =
@@ -122,21 +148,30 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
             }
         });
 
-        profileAvatar.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfilePage.this, PickNewAvatar.class);
-            startActivityForResult(intent, NEW_AVATAR_REQUEST);
-        });
-
-         profileGPS.setOnClickListener(new View.OnClickListener() {
+         profileChangeMaxDestinations.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View v) {
-                 if (profileGPS.isChecked()){
-                     String[] permissionsList = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
-                     ActivityCompat.requestPermissions((Activity) context, permissionsList, LOCATION_PERMISSIONS_REQUEST_CODE);
-                 } else {
-                     Toast.makeText(context, "Must turn off in phone settings.", Toast.LENGTH_SHORT).show();
-                     profileGPS.setChecked(true);
-                 }
+                ProfileChangeDialog profileChangeDialog = new ProfileChangeDialog(maxDestinations.getText()
+                        .toString(), username, getApplicationContext(), 3);
+                profileChangeDialog.show(getSupportFragmentManager(), "maxDestinationsChange");
+             }
+         });
+
+         profileChangeMaxVotes.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 ProfileChangeDialog profileChangeDialog = new ProfileChangeDialog(maxVotes.getText()
+                         .toString(), username, getApplicationContext(), 4);
+                 profileChangeDialog.show(getSupportFragmentManager(), "maxVotesChange");
+             }
+         });
+
+         profileChangeTimerLength.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 ProfileChangeDialog profileChangeDialog = new ProfileChangeDialog(timerLength.getText()
+                         .toString(), username, getApplicationContext(), 5);
+                 profileChangeDialog.show(getSupportFragmentManager(), "timerLengthChange");
              }
          });
     }
@@ -194,9 +229,7 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == NEW_AVATAR_REQUEST) {
-            Log.d(TAG, "onActivityResult: RequestCode");
             if (resultCode == RESULT_OK && data != null) {
-                Log.d(TAG, "onActivityResult: ResultCode Okay");
                 int newAvatarCode = data.getIntExtra("AVATAR_SELECTED", 0);
                 Runnable runnable = new Runnable() {
                     @Override
@@ -242,14 +275,20 @@ public class ProfilePage extends AppCompatActivity implements ProfileChangeDialo
     public void applyTextChange(String changedText, int resourceFieldCode) {
         switch (resourceFieldCode){
             case 1:
-                Log.d(TAG, "applyTextChange: Activity has received info.");
                 profileTheirPassword.setText(changedText);
                 break;
             case 2:
                 profileTheirEmail.setText(changedText);
                 break;
             case 3:
-                // changing display name //
+                maxDestinations.setText(changedText);
+                break;
+            case 4:
+                maxVotes.setText(changedText);
+                break;
+            case 5:
+                timerLength.setText(changedText);
+                break;
         }
     }
 

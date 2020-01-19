@@ -8,4 +8,6 @@
     <string name="searching_for">Searching… </string>
 
     <string name="profile_number_votes">Tap up to %1$s options.</string>
+
+    <string name="waiting_for_host">Waiting for host…</string>
 </resources>

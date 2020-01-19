@@ -17,6 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
@@ -24,21 +25,28 @@ import java.util.UUID;
 public class BluetoothDataTransferService extends Service {
 
     private BluetoothAdapter bluetoothAdapter;
-    private static final UUID UUID_INSECURE = java.util.UUID.fromString("238c71d5-924d-4f72-af44-89b9e2cc9582");
     private BluetoothDevice blueDevice;
-    private UUID deviceUUID;
+    private static final String[] UUIDS_FOR_CLIENTS = {"238c71d5-924d-4f72-af44-89b9e2cc9582", "b44d57dd-b28d-4917-aabe-e48b8ab6157a",
+            "8a736e75-6963-4ed0-88b6-77afb46750ff", "aa3fdcc1-aac0-4a62-b05f-41543934b2f7",
+            "baa489c4-d079-4e52-8878-1f88714724b3", "197cb4f5-31a3-49e0-a485-5c319f7615a2",
+            "f319d442-4cae-49d2-b0a2-60900a9156dd", "d115dd7c-c5d2-466b-b1c4-8b54ce9fecc4"};
+    private ArrayList<BluetoothDevice> allTheDevices;
     private ServerSocketConnection serverSocketConnection;
     private ClientSocketConnection clientSocketConnection;
-    private SendingBetweenDevices sendingBetweenDevices;
 
-    private VoteCalculations voteCalculations = new VoteCalculations();
     private ArrayList<String> allTheSubmissions = new ArrayList<>();
-    private boolean isStreamConnected = false;
+
     private boolean allAnswersTransferredToHost = false;
     private boolean isFinalAnswerTransferred = false;
-    private String theFinalAnswer;
+    private boolean isAllConnectionsEstablished = false;
 
-    public static final String TAG = "TAG";
+    private String theFinalAnswer;
+    private boolean isHost = false;
+
+    private int counterConnectionsMade = 0;
+    private int counterFinalAnswersSubmitted = 0;
+    private ArrayList<SendingBetweenDevices> allDevicesCommunicator = new ArrayList<>();
+
 
     // Essentially the communicator class that's actually called a binder //
     class TheBinder extends Binder{
@@ -59,18 +67,20 @@ public class BluetoothDataTransferService extends Service {
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         int typeOfUser = intent.getIntExtra("SERVICE_ID", 0);
         if (typeOfUser == 1){
+            isHost = true;
+            allTheDevices = intent.getParcelableArrayListExtra("DEVICE_LIST");
             startService();
         } else {
             blueDevice = intent.getParcelableExtra("DEVICE_TO_CONNECT");
-            deviceUUID = java.util.UUID.fromString(intent.getStringExtra("UUID"));
-            startServiceAsClient(blueDevice, deviceUUID);
+            startServiceAsClient(blueDevice);
         }
         return Service.START_REDELIVER_INTENT;
     }
 
 
     private void socketsConnected(BluetoothSocket socket){
-        sendingBetweenDevices = new SendingBetweenDevices(socket);
+        SendingBetweenDevices sendingBetweenDevices = new SendingBetweenDevices(socket);
+        allDevicesCommunicator.add(sendingBetweenDevices);
         sendingBetweenDevices.start();
     }
 
@@ -88,17 +98,27 @@ public class BluetoothDataTransferService extends Service {
         }
     }
 
-    void startServiceAsClient(BluetoothDevice device, UUID uuid){
-        clientSocketConnection = new ClientSocketConnection(device, uuid);
+    void startServiceAsClient(BluetoothDevice device){
+        clientSocketConnection = new ClientSocketConnection(device);
         clientSocketConnection.start();
     }
 
     void write(byte[] out) {
         try {
-            sendingBetweenDevices.write(out);
+            for(SendingBetweenDevices aDevice : allDevicesCommunicator) {
+                aDevice.write(out);
+            }
         } catch (NullPointerException e){
             e.printStackTrace();
         }
+    }
+
+    ArrayList<SendingBetweenDevices> getAllConnections(){
+        return allDevicesCommunicator;
+    }
+
+    ClientSocketConnection getClientSocketConnection(){
+        return clientSocketConnection;
     }
 
 
@@ -108,36 +128,43 @@ public class BluetoothDataTransferService extends Service {
     // The connection process if user is the host //
     class ServerSocketConnection extends Thread{
         private BluetoothServerSocket serverSocket;
+        private BluetoothSocket workingSocket;
+        private int counterOfConnectionsMade = 0;
 
         ServerSocketConnection() {
-            BluetoothServerSocket tempSocket = null;
-            try {
-                String appName = "com.example.myapplication";
-                tempSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(appName, UUID_INSECURE);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            serverSocket = tempSocket;
         }
 
         @Override
         public void run() {
             super.run();
-            BluetoothSocket socket = null;
-            while (socket == null){
+            while (counterOfConnectionsMade < allTheDevices.size()){
+                workingSocket = null;
+                String appName = "com.example.myapplication";
                 try {
-                    socket = serverSocket.accept();
+                    for (int i = 0; i < 1; i++) {
+                        serverSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(appName, UUID.fromString(UUIDS_FOR_CLIENTS[i]));
+                        try {
+                            workingSocket = serverSocket.accept();
+                            if (workingSocket != null) {
+                                socketsConnected(workingSocket);
+                                cancelServerSocket(serverSocket);
+                                counterOfConnectionsMade++;
+                                break;
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            socketsConnected(socket);
         }
 
-        public void cancelServerSocket(){
-            if (serverSocket != null) {
+        void cancelServerSocket(BluetoothServerSocket socket){
+            if (socket != null) {
                 try {
-                    serverSocket.close();
+                    socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -155,9 +182,8 @@ public class BluetoothDataTransferService extends Service {
         private BluetoothSocket socket;
         private Handler theHandler;
 
-        ClientSocketConnection(BluetoothDevice device, UUID uuid) {
+        ClientSocketConnection(BluetoothDevice device) {
             blueDevice = device;
-            deviceUUID = uuid;
             theHandler = new Handler();
         }
 
@@ -171,28 +197,41 @@ public class BluetoothDataTransferService extends Service {
             final Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        tempSocket[0] = blueDevice.createRfcommSocketToServiceRecord(deviceUUID);
-                    } catch (IOException e) {
-                        theHandler.postDelayed(this, 3000);
-                    }
-                    socket = tempSocket[0];
-                    if (socket != null) {
-                        theHandler.removeCallbacks(this);
+                    for (int i = 0; i < 1; i++) {
                         try {
-                            socket.connect();
-                            socketsConnected(socket);
-                            // the loop only doesn't callback with this possibility //
+                            tempSocket[0] = blueDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(UUIDS_FOR_CLIENTS[i]));
+                            socket = tempSocket[0];
+                            if (socket != null) {
+                                theHandler.removeCallbacks(this);
+                                try {
+                                    socket.connect();
+                                    socketsConnected(socket);
+                                    break;
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    theHandler.postDelayed(this, 2000);
+                                }
+                            } else {
+                                theHandler.postDelayed(this, 2000);
+                            }
                         } catch (IOException e) {
-                            e.printStackTrace();
-                            theHandler.postDelayed(this, 3000);
+                            theHandler.postDelayed(this, 2000);
                         }
-                    } else {
-                        theHandler.postDelayed(this, 3000);
                     }
-                }
-            };
+                    }
+                };
             theHandler.post(runnable);
+            }
+
+
+        void cancelClientSocket(){
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -205,6 +244,7 @@ public class BluetoothDataTransferService extends Service {
     class SendingBetweenDevices extends Thread {
         private InputStream inputStream;
         private OutputStream outputStream;
+
 
         private SendingBetweenDevices(BluetoothSocket socket){
             InputStream tempImp = null;
@@ -225,38 +265,51 @@ public class BluetoothDataTransferService extends Service {
 
         @Override
         public void run() {
-            Log.d(TAG, "run: established the input/output stream!");
-            // TODO: When multiple devices are connected, might just have to add a counter to the below line before it switches to true //
-            isStreamConnected = true;
-            int finalAnswersSubmitted = 0;
             super.run();
+            counterConnectionsMade++;
+
+            if (isHost && counterConnectionsMade >= allTheDevices.size()){
+                isAllConnectionsEstablished = true;
+            }
+
             byte[] buffer = new byte[1024];
             int bytes = 0;
+
             while (true) {
                 try {
                     bytes = inputStream.read(buffer);
                     String incomingMessage = new String(buffer, 0, bytes);
-                    Log.d(TAG, "run: Incoming message: " + incomingMessage);
                     if(incomingMessage.contains("***")){
+                        // messageType: sending final answers //
                         String[] submission = incomingMessage.split("\\*\\*\\*");
                         allTheSubmissions.addAll(Arrays.asList(submission));
-                        finalAnswersSubmitted++;
-                        if(finalAnswersSubmitted == 1){
-                            //TODO: obv this will have to change to smth like deviceList.size()//
+                        counterFinalAnswersSubmitted++;
+                        if(counterFinalAnswersSubmitted >= allTheDevices.size()){
                             allAnswersTransferredToHost = true;
                         }
                     } else if (incomingMessage.contains("###")) {
-                        Log.d(TAG, "run: " + incomingMessage);
+                        // messageType: the actual final answer //
                         String[] finalAnswer = incomingMessage.split("###");
                         theFinalAnswer = Arrays.toString(finalAnswer);
                         isFinalAnswerTransferred = true;
-                        Log.d(TAG, "run: " + Arrays.toString(finalAnswer));
-                    } else if (incomingMessage.equals("BRUYOUREREADY")){
-                        Log.d(TAG, "run: " + incomingMessage);
+                    } else if (incomingMessage.contains("!!!")){
+                        // messageType: settings and notification of connection established //
+                        Intent intentReady = new Intent("INCOMING_MESSAGE");
+                        String[] outGoing = incomingMessage.split("!!!");
+                        String outGoingMessage = Arrays.toString(outGoing);
+                        intentReady.putExtra("THE_SETTINGS_AND_NOTIFICATION", outGoingMessage);
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intentReady);
+                    } else if (incomingMessage.equals("BRUWEREADY")) {
+                        // messageType: master notifying slaves that ActualVoting.class will begin //
                         Intent intentReady = new Intent("INCOMING_MESSAGE");
                         intentReady.putExtra("THE_MESSAGE", incomingMessage);
                         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intentReady);
                     } else {
+                        // messageType: sending an option for CreateDestinations.class //
+                        if(isHost){
+                            // Master receiving incoming messages and resending them to all the slaves //
+                            BluetoothDataTransferService.this.write(incomingMessage.getBytes(Charset.defaultCharset()));
+                        }
                         Intent intent = new Intent("INCOMING_MESSAGE");
                         intent.putExtra("THE_MESSAGE", incomingMessage);
                         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
@@ -265,6 +318,20 @@ public class BluetoothDataTransferService extends Service {
                     e.printStackTrace();
                     break;
                 }
+            }
+        }
+
+        void cancelConnection(){
+            try {
+                inputStream.close();
+                outputStream.close();
+                if(clientSocketConnection != null){
+                    clientSocketConnection.socket.close();
+                } else if (serverSocketConnection.serverSocket != null){
+                    serverSocketConnection.serverSocket.close();
+                }
+            } catch (IOException e){
+                e.printStackTrace();
             }
         }
 
@@ -280,8 +347,8 @@ public class BluetoothDataTransferService extends Service {
 
     // Methods for confirming bluetooth data transfers have been completed //
 
-    boolean getIsStreamConnected(){
-        return isStreamConnected;
+    boolean getAreAllConnectionsEstablished(){
+        return isAllConnectionsEstablished;
     }
 
     boolean getAreAllAnswersTransferredToHost(){
@@ -292,8 +359,8 @@ public class BluetoothDataTransferService extends Service {
         return this.isFinalAnswerTransferred;
     }
 
-    void setHasFinalAnswerBeenTransferred(boolean bool){
-        this.isFinalAnswerTransferred = bool;
+    void setHasFinalAnswerBeenTransferred(){
+        this.isFinalAnswerTransferred = true;
     }
 
     ArrayList<String> getAllTheSubmissions(){

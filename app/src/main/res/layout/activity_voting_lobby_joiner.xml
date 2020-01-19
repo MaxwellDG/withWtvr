@@ -19,58 +19,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
-        android:id="@+id/joinerHostConnectedImage"
-        android:layout_width="0dp"
-        android:layout_height="97dp"
-        android:layout_marginTop="8dp"
-        android:background="#B5F1F0F0"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardview9"
-        app:srcCompat="@drawable/baseline_phonelink_erase_black_48dp" />
-
     <LinearLayout
         android:id="@+id/joinerLinear"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/joinerDestinationsButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/joinerHostConnectedImage">
+        app:layout_constraintTop_toBottomOf="@+id/conLay7">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/joinerRecycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/joinerStatusTextTop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="16dp"
-        android:text="Status:"
-        app:layout_constraintBottom_toBottomOf="@+id/joinerHostConnectedImage"
-        app:layout_constraintStart_toStartOf="@+id/joinerHostConnectedImage"
-        app:layout_constraintTop_toBottomOf="@+id/cardview9" />
-
-    <TextView
-        android:id="@+id/joinerStatusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Not searching"
-        app:layout_constraintEnd_toEndOf="@+id/joinerStatusTextTop"
-        app:layout_constraintStart_toStartOf="@+id/joinerStatusTextTop"
-        app:layout_constraintTop_toBottomOf="@+id/joinerStatusTextTop" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView4"
@@ -84,7 +50,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/imageView5"
+            android:id="@+id/joinerMenu"
             android:layout_width="wrap_content"
             android:layout_height="24dp"
             android:layout_gravity="center|right"
@@ -124,12 +90,12 @@
             tools:visibility="visible" />
     </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cardview9"
         android:layout_width="0dp"
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@color/colorAccent"
+        android:background="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -137,26 +103,110 @@
 
         <ImageView
             android:id="@+id/joinerEnableBluetoothButton"
-            android:layout_width="161dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/joinerRefreshButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/allow_search_buttons" />
 
         <ImageView
             android:id="@+id/joinerRefreshButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_marginEnd="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/allow_refresh_buttons" />
 
         <ImageView
             android:id="@+id/imageView9"
-            android:layout_width="160dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center|right"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/joinerRefreshButton"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/always_host_buttons" />
 
-    </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/conLay7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@color/background_Grey_status"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardview9">
+
+        <TextView
+            android:id="@+id/textView28"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginBottom="24dp"
+            android:text="Your Device Name:"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/joinerHostConnectedImage"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/joinerDeviceName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginTop="8dp"
+            android:text="yourDeviceName"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="@+id/textView28"
+            app:layout_constraintStart_toStartOf="@+id/textView28"
+            app:layout_constraintTop_toBottomOf="@+id/textView28" />
+
+        <ImageView
+            android:id="@+id/joinerHostConnectedImage"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/baseline_phonelink_erase_black_48dp" />
+
+        <TextView
+            android:id="@+id/joinerStatusTextTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:layout_marginBottom="24dp"
+            android:text="Status:"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/joinerHostConnectedImage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/joinerStatusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_marginTop="8dp"
+            android:text="Not searching..."
+            app:layout_constraintEnd_toEndOf="@+id/joinerStatusTextTop"
+            app:layout_constraintStart_toStartOf="@+id/joinerStatusTextTop"
+            app:layout_constraintTop_toBottomOf="@+id/joinerStatusTextTop" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
