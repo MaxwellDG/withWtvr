@@ -1,6 +1,6 @@
 # WithWtvr
-"What do you want to do tonight?". 
-Every single person responds: "I dunno, I'm fine with whatever".
+"What do you want to do tonight?". <br>
+Every single person responds: "I dunno, I'm fine with whatever". <br>
 Android app designed to help groups of people decide on their destinations. As an added measure, features GoogleMaps and GooglePlaces APIs to give suggestions on a location.
 
 
